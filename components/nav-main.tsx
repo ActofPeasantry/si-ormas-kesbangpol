@@ -69,7 +69,7 @@ export function NavMain({
                                 data-state={
                                   subitem.isActive ? "active" : "inactive"
                                 }
-                                className="data-[state=active]:bg-primary "
+                                className="data-[state=active]:bg-primary  data-[state=active]:text-white"
                                 href={subitem.url}
                               >
                                 {subitem.icon && <subitem.icon />}
@@ -89,7 +89,7 @@ export function NavMain({
                   <SidebarMenuButton
                     data-state={item.isActive ? "active" : "inactive"}
                     tooltip={item.title}
-                    className="data-[state=active]:bg-primary "
+                    className="data-[state=active]:bg-primary data-[state=active]:text-white "
                   >
                     {item.icon && <item.icon />}
                     <span>{item.title}</span>

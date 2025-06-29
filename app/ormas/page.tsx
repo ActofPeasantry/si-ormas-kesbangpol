@@ -1,23 +1,54 @@
+"use client";
+
 import { AppSidebar } from "@/components/app-sidebar";
 import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { Card, CardTitle, CardHeader, CardFooter } from "@/components/ui/card";
-// import { CardDescription } from "@/components/ui/card";
-import { IconTrendingUp } from "@tabler/icons-react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import DataTable from "@/components/ormas/data-table";
+import { getOrmasData } from "@/lib/queries/ormas";
 
-export default function page() {
-  const data = {
-    breadcrumb: [
-      {
-        title: "Dashboard",
-        url: "/",
-      },
-      {
-        title: "Ormas",
-        url: "/ormas",
-      },
-    ],
-  };
+type OrmasRecord = {
+  namaOrmas: string;
+  singkatanOrmas: string;
+  alamatOrmas: string | null;
+  noTelpOrmas: string | null;
+};
+
+type OrmasData = {
+  records: OrmasRecord[];
+};
+
+const breadcrumb = [
+  {
+    title: "Dashboard",
+    url: "/",
+  },
+  {
+    title: "Ormas",
+    url: "/ormas",
+  },
+];
+export default function Page() {
+  const queryClient = useQueryClient();
+
+  const { data, isLoading } = useQuery<OrmasData>({
+    queryKey: ["ormasRecords"],
+    queryFn: async () => {
+      const records = await getOrmasData();
+      return { records };
+    },
+  });
+
+  const refreshData = useMutation({
+    mutationFn: async () => {
+      const records = await getOrmasData();
+      return { records };
+    },
+    onSuccess: (data) => {
+      queryClient.setQueryData(["ormasRecords"], data);
+    },
+  });
 
   return (
     <SidebarProvider
@@ -31,7 +62,7 @@ export default function page() {
       <AppSidebar variant="inset" />
       <SidebarInset>
         {/* <CardDescription /> */}
-        <SiteHeader breadcrumb={data.breadcrumb} />
+        <SiteHeader breadcrumb={breadcrumb} />
         <div className="flex flex-1 flex-col">
           <div className="@container/main flex flex-1 flex-col gap-2">
             <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
@@ -42,12 +73,11 @@ export default function page() {
                       Daftar Organisasi Masyarakat
                     </CardTitle>
                   </CardHeader>
-                  <CardFooter className="flex-col items-start gap-1.5 text-sm">
-                    <div className="line-clamp-1 flex gap-2 font-medium">
-                      Trending up this month{" "}
-                      <IconTrendingUp className="size-4" />
-                    </div>
-                  </CardFooter>
+                  <DataTable
+                    data={data?.records || []}
+                    loading={isLoading || refreshData.isPending}
+                  />
+                  <CardFooter className="flex-col items-start gap-1.5 text-sm"></CardFooter>
                 </Card>
               </div>
             </div>
