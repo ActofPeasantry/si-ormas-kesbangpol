@@ -1,5 +1,12 @@
 // import { relations } from "drizzle-orm";
-import { mysqlTable, int, varchar, mysqlEnum } from "drizzle-orm/mysql-core";
+import {
+  mysqlTable,
+  int,
+  varchar,
+  timestamp,
+  date,
+  mysqlEnum,
+} from "drizzle-orm/mysql-core";
 
 export const UsersTable = mysqlTable("users", {
   id: int("id").primaryKey().autoincrement().notNull(),
@@ -9,6 +16,9 @@ export const UsersTable = mysqlTable("users", {
   role: mysqlEnum("role", ["admin", "akun ormas"])
     .notNull()
     .default("akun ormas"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  deletedAt: date("deleted_at"),
 });
 
 //-------------------------------------------------------------------------
@@ -24,6 +34,12 @@ export const OrmasTable = mysqlTable("ormas", {
     }),
   namaOrmas: varchar("nama_ormas", { length: 10 }).notNull(),
   singkatanOrmas: varchar("singkatan_ormas", { length: 10 }).notNull(),
+  statusOrmas: mysqlEnum("status_ormas", ["Aktif", "Non Aktif"])
+    .notNull()
+    .default("Non Aktif"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  deletedAt: date("deleted_at"),
 });
 
 //-------------------------------------------------------------------------
@@ -42,6 +58,8 @@ export const DetailOrmasTable = mysqlTable("detail_ormas", {
   adArt: varchar("ad_art", { length: 10 }).notNull(),
   alamatOrmas: varchar("alamat_ormas", { length: 10 }).notNull(),
   noTelpOrmas: varchar("no_telp_ormas", { length: 10 }).notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 //-------------------------------------------------------------------------
@@ -63,4 +81,7 @@ export const DokumenOrmasTable = mysqlTable("dokumen_ormas", {
   ])
     .notNull()
     .default("pengajuan"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  deletedAt: date("deleted_at"),
 });
