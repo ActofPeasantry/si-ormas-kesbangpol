@@ -43,7 +43,7 @@ export function SiteHeader({ breadcrumb }: { breadcrumb?: Breadcrumb[] }) {
                   {index === breadcrumb.length - 1 ? (
                     <BreadcrumbPage>{item.title}</BreadcrumbPage>
                   ) : (
-                    // shadcn BreadcrumbLink sucks
+                    // shadcn BreadcrumbLink sucks. use nextJS Link instead
                     <Link href={item.url}>{item.title}</Link>
                   )}
                 </BreadcrumbItem>

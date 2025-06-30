@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { detailOrmasTable, OrmasTable } from "@/lib/db/schema";
+import { DetailOrmasTable, OrmasTable } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 
 export async function getOrmasData() {
@@ -9,10 +9,10 @@ export async function getOrmasData() {
     .select({
       namaOrmas: OrmasTable.namaOrmas,
       singkatanOrmas: OrmasTable.singkatanOrmas,
-      noTelpOrmas: detailOrmasTable.noTelpOrmas,
-      alamatOrmas: detailOrmasTable.alamatOrmas,
+      noTelpOrmas: DetailOrmasTable.noTelpOrmas,
+      alamatOrmas: DetailOrmasTable.alamatOrmas,
     })
     .from(OrmasTable)
-    .leftJoin(detailOrmasTable, eq(OrmasTable.id, detailOrmasTable.OrmasId));
+    .leftJoin(DetailOrmasTable, eq(OrmasTable.id, DetailOrmasTable.OrmasId));
   return result;
 }

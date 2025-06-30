@@ -3,7 +3,6 @@ import { mysqlTable, int, varchar, mysqlEnum } from "drizzle-orm/mysql-core";
 
 export const UsersTable = mysqlTable("users", {
   id: int("id").primaryKey().autoincrement().notNull(),
-  nama: varchar("nama", { length: 10 }).notNull(),
   username: varchar("username", { length: 10 }).notNull(),
   email: varchar("email", { length: 20 }).notNull(),
   password: varchar("password", { length: 20 }).notNull(),
@@ -14,11 +13,11 @@ export const UsersTable = mysqlTable("users", {
 
 //-------------------------------------------------------------------------
 
+//UserTable-OrmasTable relation is one-to-many for now
 export const OrmasTable = mysqlTable("ormas", {
   id: int("id").primaryKey().autoincrement().notNull(),
   userId: int("user_id")
     .notNull()
-    .unique()
     .references(() => UsersTable.id, {
       onDelete: "cascade",
       onUpdate: "cascade",
@@ -29,7 +28,7 @@ export const OrmasTable = mysqlTable("ormas", {
 
 //-------------------------------------------------------------------------
 
-export const detailOrmasTable = mysqlTable("detail_ormas", {
+export const DetailOrmasTable = mysqlTable("detail_ormas", {
   id: int("id").primaryKey().autoincrement().notNull(),
   OrmasId: int("ormas_id")
     .notNull()
@@ -47,11 +46,11 @@ export const detailOrmasTable = mysqlTable("detail_ormas", {
 
 //-------------------------------------------------------------------------
 
-export const dokumenOrmasTable = mysqlTable("dokumen_ormas", {
+export const DokumenOrmasTable = mysqlTable("dokumen_ormas", {
   id: int("id").primaryKey().autoincrement().notNull(),
   detailOrmasId: int("detail_ormas_id")
     .notNull()
-    .references(() => detailOrmasTable.id, {
+    .references(() => DetailOrmasTable.id, {
       onDelete: "cascade",
       onUpdate: "cascade",
     }),
