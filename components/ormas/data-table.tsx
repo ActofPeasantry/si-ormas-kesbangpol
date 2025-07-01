@@ -1,5 +1,13 @@
 import React from "react";
-
+import { IconDotsVertical } from "@tabler/icons-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -9,6 +17,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+
 import {
   useReactTable,
   createColumnHelper,
@@ -21,6 +30,7 @@ type OrmasRecord = {
   singkatanOrmas: string;
   alamatOrmas: string | null;
   noTelpOrmas: string | null;
+  statusOrmas: string;
 };
 
 export default function DataTable({
@@ -44,6 +54,34 @@ export default function DataTable({
     columnHelper.accessor("alamatOrmas", {
       header: "Alamat Ormas",
     }),
+    columnHelper.accessor("statusOrmas", {
+      header: "Status",
+    }),
+    {
+      id: "actions",
+      cell: () => (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              className="data-[state=open]:bg-muted text-muted-foreground flex size-8"
+              size="icon"
+            >
+              <IconDotsVertical />
+              <span className="sr-only">Open menu</span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-32">
+            <DropdownMenuItem>Detail</DropdownMenuItem>
+            <DropdownMenuItem>Ubah</DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem className="text-red-600 focus:bg-red-600 focus:text-white">
+              Hapus
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      ),
+    },
   ];
 
   const table = useReactTable({

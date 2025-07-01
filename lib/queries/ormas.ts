@@ -11,6 +11,7 @@ export async function getOrmasData() {
       singkatanOrmas: OrmasTable.singkatanOrmas,
       noTelpOrmas: DetailOrmasTable.noTelpOrmas,
       alamatOrmas: DetailOrmasTable.alamatOrmas,
+      statusOrmas: OrmasTable.statusOrmas,
     })
     .from(OrmasTable)
     .leftJoin(DetailOrmasTable, eq(OrmasTable.id, DetailOrmasTable.OrmasId));

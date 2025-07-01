@@ -13,6 +13,7 @@ type OrmasRecord = {
   singkatanOrmas: string;
   alamatOrmas: string | null;
   noTelpOrmas: string | null;
+  statusOrmas: string;
 };
 
 type OrmasData = {
