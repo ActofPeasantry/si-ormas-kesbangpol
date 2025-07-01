@@ -56,7 +56,7 @@ export const DetailOrmasTable = mysqlTable("detail_ormas", {
   skBadanHukum: varchar("sk_badan_hukum", { length: 20 }).notNull(),
   skBadanKeperguruan: varchar("sk_badan_keperguruan", { length: 20 }).notNull(),
   adArt: varchar("ad_art", { length: 20 }).notNull(),
-  alamatOrmas: varchar("alamat_ormas").notNull(),
+  alamatOrmas: varchar("alamat_ormas", { length: 225 }).notNull(),
   noTelpOrmas: varchar("no_telp_ormas", { length: 20 }).notNull(),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
