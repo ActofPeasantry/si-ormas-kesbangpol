@@ -8,6 +8,12 @@ import {
   CardContent,
   CardFooter,
 } from "@/components/ui/card";
+import { notFound } from "next/navigation";
+import { getOrmasDetail } from "@/lib/queries/ormas";
+
+type Props = {
+  params: { id: number };
+};
 
 const breadcrumb = [
   {
@@ -20,11 +26,20 @@ const breadcrumb = [
   },
   {
     title: "Detail Ormas",
-    url: "/ormas/detail/[singkatanOrmas]",
+    url: "/ormas/detail/[id]",
   },
 ];
 
-export default function Page() {
+export default async function Page({ params }: Props) {
+  const { id } = params;
+
+  // fetch or query the Ormas data from DB here
+  const ormas = await getOrmasDetail(id);
+
+  if (!ormas) {
+    notFound();
+  }
+
   return (
     <SidebarProvider
       style={
@@ -45,12 +60,10 @@ export default function Page() {
                 <Card className="@container/card">
                   <CardHeader>
                     <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-                      Detail Organisasi Masyarakat
+                      {ormas[0].namaOrmas}
                     </CardTitle>
                   </CardHeader>
-                  <CardContent>
-                    <p>Here be content</p>
-                  </CardContent>
+                  <CardContent></CardContent>
                   <CardFooter className="flex-col items-start gap-1.5 text-sm"></CardFooter>
                 </Card>
               </div>

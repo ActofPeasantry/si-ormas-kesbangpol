@@ -74,7 +74,7 @@ export default function DataTable({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-32">
-            <Link href={`/ormas/detail/${info.row.original.singkatanOrmas}`}>
+            <Link href={`/ormas/detail/${info.row.original.id}`}>
               <DropdownMenuItem>Detail</DropdownMenuItem>
             </Link>
             <DropdownMenuItem>Ubah</DropdownMenuItem>

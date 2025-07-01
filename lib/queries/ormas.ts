@@ -74,3 +74,21 @@ export async function addOrmasData(formData: FormData) {
     console.error("Error inserting data:", error);
   }
 }
+
+export async function getOrmasDetail(id: number) {
+  return await db
+    .select({
+      id: OrmasTable.id,
+      namaOrmas: OrmasTable.namaOrmas,
+      singkatanOrmas: OrmasTable.singkatanOrmas,
+      statusOrmas: OrmasTable.statusOrmas,
+      noTelpOrmas: DetailOrmasTable.noTelpOrmas,
+      alamatOrmas: DetailOrmasTable.alamatOrmas,
+      skBadanHukum: DetailOrmasTable.skBadanHukum,
+      skKeperguruan: DetailOrmasTable.skBadanKeperguruan,
+      adArt: DetailOrmasTable.adArt,
+    })
+    .from(OrmasTable)
+    .leftJoin(DetailOrmasTable, eq(OrmasTable.id, DetailOrmasTable.OrmasId))
+    .where(eq(OrmasTable.id, id));
+}
