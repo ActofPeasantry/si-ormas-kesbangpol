@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { addOrmasData } from "@/lib/queries/ormas";
+import { encrypt } from "@/lib/crypto";
 
 const breadcrumb = [
   {
@@ -46,12 +47,15 @@ export default function Page() {
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
+    const hashedPassword = await encrypt("12345678");
+
     const formData = new FormData();
     const fields = {
       //user data
       username: username,
       email: email,
-      password: "12345678",
+      password: hashedPassword,
       //ormas data
       namaOrmas: namaOrmas,
       singkatanOrmas: singkatanOrmas,

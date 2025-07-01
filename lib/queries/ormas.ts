@@ -7,6 +7,7 @@ import { eq } from "drizzle-orm";
 export async function getOrmasData() {
   const result = await db
     .select({
+      id: OrmasTable.id,
       namaOrmas: OrmasTable.namaOrmas,
       singkatanOrmas: OrmasTable.singkatanOrmas,
       noTelpOrmas: DetailOrmasTable.noTelpOrmas,

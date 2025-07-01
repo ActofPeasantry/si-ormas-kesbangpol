@@ -1,5 +1,6 @@
 import React from "react";
 import { IconDotsVertical } from "@tabler/icons-react";
+import Link from "next/link";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -26,6 +27,7 @@ import {
 } from "@tanstack/react-table";
 
 type OrmasRecord = {
+  id: number;
   namaOrmas: string;
   singkatanOrmas: string;
   alamatOrmas: string | null;
@@ -57,9 +59,9 @@ export default function DataTable({
     columnHelper.accessor("statusOrmas", {
       header: "Status",
     }),
-    {
+    columnHelper.display({
       id: "actions",
-      cell: () => (
+      cell: (info) => (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
@@ -72,7 +74,9 @@ export default function DataTable({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-32">
-            <DropdownMenuItem>Detail</DropdownMenuItem>
+            <Link href={`/ormas/detail/${info.row.original.singkatanOrmas}`}>
+              <DropdownMenuItem>Detail</DropdownMenuItem>
+            </Link>
             <DropdownMenuItem>Ubah</DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem className="text-red-600 focus:bg-red-600 focus:text-white">
@@ -81,7 +85,7 @@ export default function DataTable({
           </DropdownMenuContent>
         </DropdownMenu>
       ),
-    },
+    }),
   ];
 
   const table = useReactTable({
