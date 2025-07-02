@@ -8,6 +8,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Badge } from "@/components/ui/badge";
+import { FaCheckCircle } from "react-icons/fa";
+import { MdOutlineError } from "react-icons/md";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -58,6 +61,16 @@ export default function DataTable({
     }),
     columnHelper.accessor("statusOrmas", {
       header: "Status",
+      cell: ({ row }) => (
+        <Badge variant="outline" className=" px-1.5">
+          {row.original.statusOrmas === "Aktif" ? (
+            <FaCheckCircle className="fill-green-500 dark:fill-green-400" />
+          ) : (
+            <MdOutlineError className="fill-yellow-500 dark:fill-yellow-400" />
+          )}
+          {row.original.statusOrmas}
+        </Badge>
+      ),
     }),
     columnHelper.display({
       id: "actions",
