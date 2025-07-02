@@ -75,6 +75,65 @@ export async function addOrmasData(formData: FormData) {
   }
 }
 
+export async function editOrmasData(id: number) {
+  const result = await db
+    .select({
+      id: OrmasTable.id,
+      namaOrmas: OrmasTable.namaOrmas,
+      singkatanOrmas: OrmasTable.singkatanOrmas,
+      // statusOrmas: OrmasTable.statusOrmas,
+      alamatOrmas: DetailOrmasTable.alamatOrmas,
+      noTelpOrmas: DetailOrmasTable.noTelpOrmas,
+      skBadanHukum: DetailOrmasTable.skBadanHukum,
+      skBadanKeperguruan: DetailOrmasTable.skBadanKeperguruan,
+      adArt: DetailOrmasTable.adArt,
+    })
+    .from(OrmasTable)
+    .leftJoin(DetailOrmasTable, eq(OrmasTable.id, DetailOrmasTable.OrmasId))
+    .where(eq(OrmasTable.id, id));
+  return result;
+}
+
+export async function updateOrmasData(id: number, formData: FormData) {
+  // Ormas data
+  const namaOrmas = formData.get("namaOrmas") as string;
+  const singkatanOrmas = formData.get("singkatanOrmas") as string;
+
+  // Detail Ormas
+  const alamatOrmas = formData.get("alamatOrmas") as string;
+  const noTelpOrmas = formData.get("noTelpOrmas") as string;
+  const skBadanHukum = formData.get("skBadanHukum") as string;
+  const skBadanKeperguruan = formData.get("skBadanKeperguruan") as string;
+  const adArt = formData.get("adArt") as string;
+
+  try {
+    // Update ormas
+    await db
+      .update(OrmasTable)
+      .set({
+        namaOrmas,
+        singkatanOrmas,
+      })
+      .where(eq(OrmasTable.id, id));
+
+    // Update detail_ormas
+    await db
+      .update(DetailOrmasTable)
+      .set({
+        alamatOrmas,
+        noTelpOrmas,
+        skBadanHukum,
+        skBadanKeperguruan,
+        adArt,
+      })
+      .where(eq(DetailOrmasTable.OrmasId, id));
+
+    console.log("Updated ormasId:", id);
+  } catch (error) {
+    console.error("Error inserting data:", error);
+  }
+}
+
 export async function getOrmasDetail(id: number) {
   return await db
     .select({
@@ -85,7 +144,7 @@ export async function getOrmasDetail(id: number) {
       noTelpOrmas: DetailOrmasTable.noTelpOrmas,
       alamatOrmas: DetailOrmasTable.alamatOrmas,
       skBadanHukum: DetailOrmasTable.skBadanHukum,
-      skKeperguruan: DetailOrmasTable.skBadanKeperguruan,
+      skBadanKeperguruan: DetailOrmasTable.skBadanKeperguruan,
       adArt: DetailOrmasTable.adArt,
     })
     .from(OrmasTable)

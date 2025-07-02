@@ -90,7 +90,9 @@ export default function DataTable({
             <Link href={`/ormas/detail/${info.row.original.id}`}>
               <DropdownMenuItem>Detail</DropdownMenuItem>
             </Link>
-            <DropdownMenuItem>Ubah</DropdownMenuItem>
+            <Link href={`/ormas/edit/${info.row.original.id}`}>
+              <DropdownMenuItem>Ubah</DropdownMenuItem>
+            </Link>
             <DropdownMenuSeparator />
             <DropdownMenuItem className="text-red-600 focus:bg-red-600 focus:text-white">
               Hapus

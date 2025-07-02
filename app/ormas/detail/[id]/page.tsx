@@ -101,7 +101,7 @@ export default async function Page({ params }: Props) {
                         <span className="font-semibold">
                           SK Badan Keperguruan
                         </span>
-                        <span>{ormas[0].skKeperguruan}</span>
+                        <span>{ormas[0].skBadanKeperguruan}</span>
                       </div>
                       <div className="flex flex-col gap-1">
                         <span className="font-semibold">AD/ART</span>

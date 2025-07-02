@@ -82,7 +82,7 @@ export default function Page() {
       setSkBadanHukum("");
       setSkBadanKeperguruan("");
       setAdArt("");
-      console.log("submit");
+      console.log("submit success");
       router.push("/ormas"); // 🔀 redirect
     } catch (error) {
       console.error("Error inserting data:", error);
@@ -258,7 +258,7 @@ export default function Page() {
                           </div>
                         </div>
                         <div className="p-6 gap-3 mb-3 ">
-                          <Button variant="outline">Submit</Button>
+                          <Button variant="outline">Tambah</Button>
                         </div>
                       </div>
                     </CardContent>
