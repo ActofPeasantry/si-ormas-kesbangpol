@@ -19,6 +19,24 @@ export async function getOrmasData() {
   return result;
 }
 
+export async function getOrmasDetail(id: number) {
+  return await db
+    .select({
+      id: OrmasTable.id,
+      namaOrmas: OrmasTable.namaOrmas,
+      singkatanOrmas: OrmasTable.singkatanOrmas,
+      statusOrmas: OrmasTable.statusOrmas,
+      noTelpOrmas: DetailOrmasTable.noTelpOrmas,
+      alamatOrmas: DetailOrmasTable.alamatOrmas,
+      skBadanHukum: DetailOrmasTable.skBadanHukum,
+      skBadanKeperguruan: DetailOrmasTable.skBadanKeperguruan,
+      adArt: DetailOrmasTable.adArt,
+    })
+    .from(OrmasTable)
+    .leftJoin(DetailOrmasTable, eq(OrmasTable.id, DetailOrmasTable.OrmasId))
+    .where(eq(OrmasTable.id, id));
+}
+
 export async function addOrmasData(formData: FormData) {
   // Users data
   const username = formData.get("username") as string;
@@ -134,20 +152,11 @@ export async function updateOrmasData(id: number, formData: FormData) {
   }
 }
 
-export async function getOrmasDetail(id: number) {
-  return await db
-    .select({
-      id: OrmasTable.id,
-      namaOrmas: OrmasTable.namaOrmas,
-      singkatanOrmas: OrmasTable.singkatanOrmas,
-      statusOrmas: OrmasTable.statusOrmas,
-      noTelpOrmas: DetailOrmasTable.noTelpOrmas,
-      alamatOrmas: DetailOrmasTable.alamatOrmas,
-      skBadanHukum: DetailOrmasTable.skBadanHukum,
-      skBadanKeperguruan: DetailOrmasTable.skBadanKeperguruan,
-      adArt: DetailOrmasTable.adArt,
-    })
-    .from(OrmasTable)
-    .leftJoin(DetailOrmasTable, eq(OrmasTable.id, DetailOrmasTable.OrmasId))
-    .where(eq(OrmasTable.id, id));
+export async function deleteOrmasData(id: number) {
+  try {
+    await db.delete(OrmasTable).where(eq(OrmasTable.id, id));
+    console.log("Deleted ormasId:", id);
+  } catch (error) {
+    console.error("Error deleting data:", error);
+  }
 }

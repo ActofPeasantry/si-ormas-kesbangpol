@@ -1,5 +1,5 @@
 "use client";
-import { use, useState } from "react";
+import { use, useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { AppSidebar } from "@/components/app-sidebar";
@@ -19,8 +19,8 @@ import { editOrmasData, updateOrmasData } from "@/lib/queries/ormas";
 
 type OrmasRecord = {
   id: number;
-  namaOrmas: string;
-  singkatanOrmas: string;
+  namaOrmas: string | null;
+  singkatanOrmas: string | null;
   alamatOrmas: string | null;
   noTelpOrmas: string | null;
   skBadanHukum: string | null;
@@ -49,8 +49,9 @@ const breadcrumb = [
 export default function Page({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const numericId = Number(id);
+  const router = useRouter();
 
-  const { data } = useQuery<OrmasData>({
+  const { data, isLoading, error } = useQuery<OrmasData>({
     queryKey: ["ormasRecords", numericId],
     queryFn: async () => {
       const records = await editOrmasData(numericId);
@@ -59,65 +60,48 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
     enabled: !!numericId,
   });
 
-  const router = useRouter();
+  const [formState, setFormState] = useState<OrmasRecord | null>(null);
 
-  const [namaOrmas, setNamaOrmas] = useState<string>(
-    data?.records[0].namaOrmas || ""
-  );
-  const [singkatanOrmas, setSingkatanOrmas] = useState<string>(
-    data?.records[0].singkatanOrmas || ""
-  );
-  const [alamatOrmas, setAlamatOrmas] = useState<string>(
-    data?.records[0].alamatOrmas || ""
-  );
-  const [noTelpOrmas, setNoTelpOrmas] = useState<string>(
-    data?.records[0].noTelpOrmas || ""
-  );
-  const [skBadanHukum, setSkBadanHukum] = useState<string>(
-    data?.records[0].skBadanHukum || ""
-  );
-  const [skBadanKeperguruan, setSkBadanKeperguruan] = useState<string>(
-    data?.records[0].skBadanKeperguruan || ""
-  );
-  const [adArt, setAdArt] = useState<string>(data?.records[0].adArt || "");
+  useEffect(() => {
+    if (data?.records?.[0]) {
+      setFormState(data.records[0]);
+    }
+  }, [data]);
+
+  if (isLoading) return <div>Loading...</div>;
+  if (error || !formState) return <div>Error loading data.</div>;
 
   const handleUpdate = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (!formState) return;
 
     const formData = new FormData();
+
     const fields = {
-      //user data
-      //ormas data
-      namaOrmas: namaOrmas,
-      singkatanOrmas: singkatanOrmas,
-      alamatOrmas: alamatOrmas,
-      noTelpOrmas: noTelpOrmas,
-      skBadanHukum: skBadanHukum,
-      skBadanKeperguruan: skBadanKeperguruan,
-      adArt: adArt,
+      namaOrmas: formState.namaOrmas ?? "",
+      singkatanOrmas: formState.singkatanOrmas ?? "",
+      alamatOrmas: formState.alamatOrmas ?? "",
+      noTelpOrmas: formState.noTelpOrmas ?? "",
+      skBadanHukum: formState.skBadanHukum ?? "",
+      skBadanKeperguruan: formState.skBadanKeperguruan ?? "",
+      adArt: formState.adArt ?? "",
     };
 
     Object.entries(fields).forEach(([key, value]) => {
       formData.append(key, value);
     });
 
-    await updateOrmasData(numericId, formData);
-
     try {
-      setNamaOrmas("");
-      setSingkatanOrmas("");
-      setAlamatOrmas("");
-      setNoTelpOrmas("");
-      setSkBadanHukum("");
-      setSkBadanKeperguruan("");
-      setAdArt("");
-      console.log("update success");
-      router.push("/ormas"); // 🔀 redirect
+      await updateOrmasData(numericId, formData);
+
+      // Optional: reset state after successful update
+      setFormState(null);
+      console.log("Update success");
+      router.push("/ormas");
     } catch (error) {
-      console.error("Error inserting data:", error);
+      console.error("Error updating data:", error);
     }
   };
-
   return (
     <SidebarProvider
       style={
@@ -150,13 +134,19 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
                             <Label className="mb-2" htmlFor="namaOrmas">
                               Nama Ormas<span className="text-red-500">*</span>
                             </Label>
+
                             <Input
                               id="namaOrmas"
                               type="text"
                               placeholder="Nama Ormas"
-                              value={namaOrmas}
-                              onChange={(e) => setNamaOrmas(e.target.value)}
-                              required
+                              value={formState.namaOrmas || ""}
+                              onChange={(e) =>
+                                setFormState({
+                                  ...formState,
+                                  namaOrmas: e.target.value,
+                                })
+                              }
+                              className="border p-2 w-full"
                             />
                           </div>
                           <div>
@@ -168,9 +158,12 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
                               id="singkatanOrmas"
                               type="text"
                               placeholder="Singkatan Ormas"
-                              value={singkatanOrmas}
+                              value={formState.singkatanOrmas || ""}
                               onChange={(e) =>
-                                setSingkatanOrmas(e.target.value)
+                                setFormState({
+                                  ...formState,
+                                  singkatanOrmas: e.target.value,
+                                })
                               }
                               required
                             />
@@ -186,8 +179,13 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
                               id="alamatOrmas"
                               type="text"
                               placeholder="Alamat Ormas"
-                              value={alamatOrmas}
-                              onChange={(e) => setAlamatOrmas(e.target.value)}
+                              value={formState.alamatOrmas || ""}
+                              onChange={(e) =>
+                                setFormState({
+                                  ...formState,
+                                  alamatOrmas: e.target.value,
+                                })
+                              }
                               required
                             />
                           </div>
@@ -200,8 +198,13 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
                               id="noTelpOrmas"
                               type="text"
                               placeholder="Nomor Telepon Ormas"
-                              value={noTelpOrmas}
-                              onChange={(e) => setNoTelpOrmas(e.target.value)}
+                              value={formState.noTelpOrmas || ""}
+                              onChange={(e) =>
+                                setFormState({
+                                  ...formState,
+                                  noTelpOrmas: e.target.value,
+                                })
+                              }
                               required
                             />
                           </div>
@@ -216,8 +219,13 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
                               id="skBadanHukum"
                               type="text"
                               placeholder="SK Badan Hukum"
-                              value={skBadanHukum}
-                              onChange={(e) => setSkBadanHukum(e.target.value)}
+                              value={formState.skBadanHukum || ""}
+                              onChange={(e) =>
+                                setFormState({
+                                  ...formState,
+                                  skBadanHukum: e.target.value,
+                                })
+                              }
                               required
                             />
                           </div>
@@ -233,9 +241,12 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
                               id="skBadanKeperguruan"
                               type="text"
                               placeholder="SK Badan Keperguruan"
-                              value={skBadanKeperguruan}
+                              value={formState.skBadanKeperguruan || ""}
                               onChange={(e) =>
-                                setSkBadanKeperguruan(e.target.value)
+                                setFormState({
+                                  ...formState,
+                                  skBadanKeperguruan: e.target.value,
+                                })
                               }
                               required
                             />
@@ -249,8 +260,13 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
                               id="adArt"
                               type="text"
                               placeholder="AD/ART"
-                              value={adArt}
-                              onChange={(e) => setAdArt(e.target.value)}
+                              value={formState.adArt || ""}
+                              onChange={(e) =>
+                                setFormState({
+                                  ...formState,
+                                  adArt: e.target.value,
+                                })
+                              }
                               required
                             />
                           </div>

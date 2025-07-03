@@ -78,6 +78,7 @@ export default function Page() {
                   <DataTable
                     data={data?.records || []}
                     loading={isLoading || refreshData.isPending}
+                    onDeleteData={() => refreshData.mutate()}
                   />
                   <CardFooter className="flex-col items-start gap-1.5 text-sm"></CardFooter>
                 </Card>
