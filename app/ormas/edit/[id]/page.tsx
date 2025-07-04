@@ -68,9 +68,6 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
     }
   }, [data]);
 
-  if (isLoading) return <div>Loading...</div>;
-  if (error || !formState) return <div>Error loading data.</div>;
-
   const handleUpdate = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!formState) return;
@@ -102,6 +99,10 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
       console.error("Error updating data:", error);
     }
   };
+
+  if (isLoading) return <div>Loading...</div>;
+  if (error || !formState) return <div>Error loading data.</div>;
+
   return (
     <SidebarProvider
       style={

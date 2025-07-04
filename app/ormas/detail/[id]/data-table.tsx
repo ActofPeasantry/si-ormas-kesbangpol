@@ -6,7 +6,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { IconDotsVertical, IconLoader } from "@tabler/icons-react";
+import { IconDotsVertical } from "@tabler/icons-react";
 import { Badge } from "@/components/ui/badge";
 import { FaCheckCircle } from "react-icons/fa";
 import { MdOutlineError } from "react-icons/md";
@@ -29,7 +29,7 @@ import {
 
 type DokumenRecord = {
   id: number;
-  linkDokumen: string | null;
+  linkDokumen: string;
   statusDokumen: string;
 };
 
@@ -43,7 +43,9 @@ export const DataTable = ({
   const getStatusIcon = (status: string) => {
     switch (status) {
       case "pengajuan":
-        return <IconLoader />;
+        return (
+          <MdOutlineError className="fill-yellow-500 dark:fill-yellow-400" />
+        );
       case "diterima":
         return <FaCheckCircle className="fill-green-500 dark:fill-green-400" />;
       case "ditolak":
@@ -61,6 +63,15 @@ export const DataTable = ({
   const columns = [
     columnHelper.accessor("linkDokumen", {
       header: "Link Dokumen",
+      cell: ({ row }) => (
+        <a
+          href={row.original.linkDokumen}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {row.original.linkDokumen}
+        </a>
+      ),
     }),
 
     columnHelper.accessor("statusDokumen", {

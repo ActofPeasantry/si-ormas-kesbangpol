@@ -70,9 +70,8 @@ export default function Page() {
       formData.append(key, value);
     });
 
-    await addOrmasData(formData);
-
     try {
+      await addOrmasData(formData);
       setUsername("");
       setEmail("");
       setNamaOrmas("");

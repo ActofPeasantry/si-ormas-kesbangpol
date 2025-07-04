@@ -1,5 +1,5 @@
 "use client";
-import { use } from "react";
+import { use, useState } from "react";
 import { AppSidebar } from "@/components/app-sidebar";
 import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
@@ -11,6 +11,19 @@ import {
   CardContent,
   CardFooter,
 } from "@/components/ui/card";
+
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { FaCheckCircle } from "react-icons/fa";
@@ -19,10 +32,11 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { DataTable } from "@/app/ormas/detail/[id]/data-table";
 import { getOrmasDetail } from "@/lib/queries/ormas";
 import { getDokumenOrmas } from "@/lib/queries/dokumenOrmas";
+import { addDokumenOrmasData } from "@/lib/queries/dokumenOrmas";
 
 type OrmasRecord = {
   id: number;
-  statusOrmas: "Aktif" | "Non Aktif";
+  statusOrmas: string | null;
   namaOrmas: string | null;
   singkatanOrmas: string | null;
   alamatOrmas: string | null;
@@ -34,8 +48,8 @@ type OrmasRecord = {
 
 type DokumenRecord = {
   id: number;
-  linkDokumen: string | null;
-  statusDokumen: "diterima" | "ditolak" | "pengajuan" | "tidak ada";
+  linkDokumen: string;
+  statusDokumen: string;
 };
 
 type OrmasData = {
@@ -63,27 +77,43 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const numericId = Number(id);
 
-  // fetch or query the Ormas data from DB here
   const { data, isLoading, error } = useQuery<OrmasData>({
     queryKey: ["ormasRecords", numericId],
     queryFn: async () => {
-      const ormasRecords = (await getOrmasDetail(numericId)) ?? [];
-      const dokumenRecords = (await getDokumenOrmas(numericId)) ?? [];
+      const ormasRecords = await getOrmasDetail(numericId);
+      const dokumenRecords = await getDokumenOrmas(numericId);
       return { ormasRecords, dokumenRecords };
     },
-    enabled: !!id && !isNaN(numericId),
+    enabled: !!numericId,
   });
 
   const refreshData = useMutation({
     mutationFn: async () => {
-      const ormasRecords = (await getOrmasDetail(numericId)) ?? [];
-      const dokumenRecords = (await getDokumenOrmas(numericId)) ?? [];
+      const ormasRecords = await getOrmasDetail(numericId);
+      const dokumenRecords = await getDokumenOrmas(numericId);
       return { ormasRecords, dokumenRecords };
     },
     onSuccess: (data) => {
-      queryClient.setQueryData(["ormasRecords"], data);
+      queryClient.setQueryData(["ormasRecords", numericId], data);
     },
   });
+
+  const [linkDokumen, setLinkDokumen] = useState<string>("");
+  const handleAddDokumen = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    const formData = new FormData();
+    formData.append("linkDokumen", linkDokumen ?? "");
+
+    try {
+      await addDokumenOrmasData(formData, numericId);
+      setLinkDokumen("");
+      refreshData.mutate();
+      console.log("submit success");
+    } catch (error) {
+      console.error("Error inserting data:", error);
+    }
+  };
 
   // const ormas = await getOrmasDetail(id);
   if (isLoading || !data?.ormasRecords?.[0]) {
@@ -159,10 +189,52 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
                     </div>
                     <h1>Dokumen Ormas</h1>
                     <div className="my-4">
-                      <Button variant="outline" size="sm">
-                        Tambah Dokumen
-                      </Button>
-                      <DataTable data={data.dokumenRecords} loading={false} />
+                      {/* Dialog Tambah Dokumen */}
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button variant="outline">Tambah Dokumen</Button>
+                        </DialogTrigger>
+
+                        <DialogContent className="sm:max-w-[425px]">
+                          <form onSubmit={handleAddDokumen}>
+                            <DialogHeader>
+                              <DialogTitle>Tambah Dokumen</DialogTitle>
+                              <DialogDescription></DialogDescription>
+                            </DialogHeader>
+                            <div className="grid gap-4">
+                              <div className="grid gap-3">
+                                <Label htmlFor="name-1">Link Dokumen</Label>
+                                <Input
+                                  id="name-1"
+                                  name="linkDokumen"
+                                  value={linkDokumen}
+                                  onChange={(e) =>
+                                    setLinkDokumen(e.target.value)
+                                  }
+                                  required
+                                />
+                              </div>
+                            </div>
+                            <DialogFooter className="mt-3">
+                              <DialogClose asChild>
+                                <Button variant="outline" type="button">
+                                  Cancel
+                                </Button>
+                              </DialogClose>
+                              <DialogClose asChild>
+                                <Button variant="outline" type="submit">
+                                  Tambah
+                                </Button>
+                              </DialogClose>
+                            </DialogFooter>
+                          </form>
+                        </DialogContent>
+                      </Dialog>
+                      {/* Table */}
+                      <DataTable
+                        data={data.dokumenRecords}
+                        loading={isLoading || refreshData.isPending}
+                      />
                     </div>
                   </CardContent>
                   <CardFooter className="flex-col items-start gap-1.5 text-sm"></CardFooter>
