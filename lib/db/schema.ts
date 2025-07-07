@@ -10,9 +10,9 @@ import {
 
 export const UsersTable = mysqlTable("users", {
   id: int("id").primaryKey().autoincrement().notNull(),
-  username: varchar("username", { length: 20 }).notNull(),
-  email: varchar("email", { length: 20 }).notNull(),
-  password: varchar("password", { length: 20 }).notNull(),
+  username: varchar("username", { length: 255 }).notNull(),
+  email: varchar("email", { length: 255 }).notNull(),
+  password: varchar("password", { length: 255 }).notNull(),
   role: mysqlEnum("role", ["admin", "akun ormas"])
     .notNull()
     .default("akun ormas"),
@@ -32,8 +32,8 @@ export const OrmasTable = mysqlTable("ormas", {
       onDelete: "cascade",
       onUpdate: "cascade",
     }),
-  namaOrmas: varchar("nama_ormas", { length: 20 }).notNull(),
-  singkatanOrmas: varchar("singkatan_ormas", { length: 20 }).notNull(),
+  namaOrmas: varchar("nama_ormas", { length: 255 }).notNull(),
+  singkatanOrmas: varchar("singkatan_ormas", { length: 255 }).notNull(),
   statusOrmas: mysqlEnum("status_ormas", ["Aktif", "Non Aktif"])
     .notNull()
     .default("Non Aktif"),
@@ -53,11 +53,13 @@ export const DetailOrmasTable = mysqlTable("detail_ormas", {
       onDelete: "cascade",
       onUpdate: "cascade",
     }),
-  skBadanHukum: varchar("sk_badan_hukum", { length: 20 }).notNull(),
-  skBadanKeperguruan: varchar("sk_badan_keperguruan", { length: 20 }).notNull(),
-  adArt: varchar("ad_art", { length: 20 }).notNull(),
-  alamatOrmas: varchar("alamat_ormas", { length: 225 }).notNull(),
-  noTelpOrmas: varchar("no_telp_ormas", { length: 20 }).notNull(),
+  skBadanHukum: varchar("sk_badan_hukum", { length: 255 }).notNull(),
+  skBadanKeperguruan: varchar("sk_badan_keperguruan", {
+    length: 255,
+  }).notNull(),
+  adArt: varchar("ad_art", { length: 255 }).notNull(),
+  alamatOrmas: varchar("alamat_ormas", { length: 255 }).notNull(),
+  noTelpOrmas: varchar("no_telp_ormas", { length: 255 }).notNull(),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -72,7 +74,8 @@ export const DokumenOrmasTable = mysqlTable("dokumen_ormas", {
       onDelete: "cascade",
       onUpdate: "cascade",
     }),
-  linkDokumen: varchar("link_dokumen", { length: 20 }).notNull(),
+  judulDokumen: varchar("judul_dokumen", { length: 255 }).notNull(),
+  linkDokumen: varchar("link_dokumen", { length: 255 }).notNull(),
   statusDokumen: mysqlEnum("status_dokumen", [
     "pengajuan",
     "ditolak",

@@ -8,6 +8,7 @@ export async function getDokumenOrmas(id: number) {
   return await db
     .select({
       id: DokumenOrmasTable.id,
+      judulDokumen: DokumenOrmasTable.judulDokumen,
       linkDokumen: DokumenOrmasTable.linkDokumen,
       statusDokumen: DokumenOrmasTable.statusDokumen,
     })
@@ -17,9 +18,11 @@ export async function getDokumenOrmas(id: number) {
 
 export async function addDokumenOrmasData(formData: FormData, id: number) {
   const linkDokumen = formData.get("linkDokumen") as string;
+  const judulDokumen = formData.get("judulDokumen") as string;
   try {
     await db.insert(DokumenOrmasTable).values({
       detailOrmasId: id,
+      judulDokumen,
       linkDokumen,
       statusDokumen: "pengajuan",
     });

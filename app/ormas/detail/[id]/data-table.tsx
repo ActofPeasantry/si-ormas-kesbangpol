@@ -7,6 +7,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { IconDotsVertical } from "@tabler/icons-react";
+import { IoDocumentTextSharp } from "react-icons/io5";
 import { Badge } from "@/components/ui/badge";
 import { FaCheckCircle } from "react-icons/fa";
 import { MdOutlineError } from "react-icons/md";
@@ -29,6 +30,7 @@ import {
 
 type DokumenRecord = {
   id: number;
+  judulDokumen: string;
   linkDokumen: string;
   statusDokumen: string;
 };
@@ -61,16 +63,22 @@ export const DataTable = ({
 
   const columnHelper = createColumnHelper<DokumenRecord>();
   const columns = [
+    columnHelper.accessor("judulDokumen", {
+      header: "Judul Dokumen",
+    }),
     columnHelper.accessor("linkDokumen", {
       header: "Link Dokumen",
       cell: ({ row }) => (
-        <a
-          href={row.original.linkDokumen}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          {row.original.linkDokumen}
-        </a>
+        <Button asChild variant="ghost" size="sm">
+          <a
+            href={row.original.linkDokumen}
+            target="_blank"
+            rel="external noopener noreferrer"
+          >
+            <IoDocumentTextSharp />
+            <span>Lihat Dokumen</span>
+          </a>
+        </Button>
       ),
     }),
 

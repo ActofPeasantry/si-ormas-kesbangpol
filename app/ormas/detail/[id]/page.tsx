@@ -48,6 +48,7 @@ type OrmasRecord = {
 
 type DokumenRecord = {
   id: number;
+  judulDokumen: string;
   linkDokumen: string;
   statusDokumen: string;
 };
@@ -98,16 +99,19 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
     },
   });
 
+  const [judulDokumen, setJudulDokumen] = useState<string>("");
   const [linkDokumen, setLinkDokumen] = useState<string>("");
   const handleAddDokumen = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     const formData = new FormData();
+    formData.append("judulDokumen", judulDokumen ?? "");
     formData.append("linkDokumen", linkDokumen ?? "");
 
     try {
       await addDokumenOrmasData(formData, numericId);
       setLinkDokumen("");
+      setJudulDokumen("");
       refreshData.mutate();
       console.log("submit success");
     } catch (error) {
@@ -171,7 +175,7 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
                         <span>{data.ormasRecords[0].noTelpOrmas}</span>
                       </div>
                     </div>
-                    <div className="p-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-1 mb-3 lg:mb-0">
+                    <div className="p-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-1 mb-1 lg:mb-0">
                       <div className="flex flex-col gap-1">
                         <span className="font-semibold">SK Badan Hukum</span>
                         <span>{data.ormasRecords[0].skBadanHukum}</span>
@@ -188,8 +192,8 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
                       </div>
                     </div>
                     <h1>Dokumen Ormas</h1>
+                    {/* Dialog Tambah Dokumen */}
                     <div className="my-4">
-                      {/* Dialog Tambah Dokumen */}
                       <Dialog>
                         <DialogTrigger asChild>
                           <Button variant="outline">Tambah Dokumen</Button>
@@ -197,11 +201,25 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
 
                         <DialogContent className="sm:max-w-[425px]">
                           <form onSubmit={handleAddDokumen}>
-                            <DialogHeader>
-                              <DialogTitle>Tambah Dokumen</DialogTitle>
-                              <DialogDescription></DialogDescription>
-                            </DialogHeader>
+                            <div className="mb-4">
+                              <DialogHeader>
+                                <DialogTitle>Tambah Dokumen</DialogTitle>
+                                <DialogDescription></DialogDescription>
+                              </DialogHeader>
+                            </div>
                             <div className="grid gap-4">
+                              <div className="grid gap-3">
+                                <Label htmlFor="name-1">Judul Dokumen</Label>
+                                <Input
+                                  id="name-1"
+                                  name="judulDokumen"
+                                  value={judulDokumen}
+                                  onChange={(e) =>
+                                    setJudulDokumen(e.target.value)
+                                  }
+                                  required
+                                />
+                              </div>
                               <div className="grid gap-3">
                                 <Label htmlFor="name-1">Link Dokumen</Label>
                                 <Input
@@ -230,7 +248,9 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
                           </form>
                         </DialogContent>
                       </Dialog>
-                      {/* Table */}
+                    </div>
+                    {/* Table */}
+                    <div className="my-4">
                       <DataTable
                         data={data.dokumenRecords}
                         loading={isLoading || refreshData.isPending}
