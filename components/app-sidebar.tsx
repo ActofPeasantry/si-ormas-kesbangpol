@@ -49,12 +49,17 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         icon: IconBuilding,
         subitems: [
           {
-            title: "Detail Ormas",
+            title: "Daftar Ormas",
             url: "/ormas",
             isActive: pathname === "/ormas",
           },
           {
-            title: "Tambah Ormas",
+            title: "Kelola Dokumen Ormas",
+            url: "/ormas/kelola_dokumen",
+            isActive: pathname === "/ormas/kelola_dokumen",
+          },
+          {
+            title: "Registrasi Ormas",
             url: "/ormas/tambah",
             isActive: pathname === "/ormas/tambah",
           },

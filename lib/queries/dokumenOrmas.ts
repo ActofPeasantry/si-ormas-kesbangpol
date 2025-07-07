@@ -1,8 +1,29 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { DokumenOrmasTable } from "@/lib/db/schema";
+import {
+  DetailOrmasTable,
+  DokumenOrmasTable,
+  OrmasTable,
+} from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
+
+export async function getAllDokumenOrmasWithNamaOrmas() {
+  return await db
+    .select({
+      namaOrmas: OrmasTable.namaOrmas,
+      id: DokumenOrmasTable.id,
+      judulDokumen: DokumenOrmasTable.judulDokumen,
+      linkDokumen: DokumenOrmasTable.linkDokumen,
+      statusDokumen: DokumenOrmasTable.statusDokumen,
+    })
+    .from(DokumenOrmasTable)
+    .leftJoin(
+      DetailOrmasTable,
+      eq(DokumenOrmasTable.detailOrmasId, DetailOrmasTable.id)
+    )
+    .leftJoin(OrmasTable, eq(OrmasTable.id, DetailOrmasTable.OrmasId));
+}
 
 export async function getDokumenOrmas(id: number) {
   return await db

@@ -27,7 +27,7 @@ const breadcrumb = [
     url: "/ormas",
   },
   {
-    title: "Tambah Ormas",
+    title: "Registrasi Ormas",
     url: "/ormas/add",
   },
 ];
