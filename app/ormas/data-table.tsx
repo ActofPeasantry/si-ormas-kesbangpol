@@ -58,6 +58,7 @@ export default function DataTable({
   onDeleteData: () => void;
 }) {
   const [deleteDialog, setDeleteDialog] = useState(false);
+  const [deleteId, setDeleteId] = useState<number>(0);
 
   const handleDelete = async (id: number) => {
     await deleteOrmasData(id);
@@ -116,37 +117,19 @@ export default function DataTable({
                 <DropdownMenuItem>Ubah</DropdownMenuItem>
               </Link>
               <DropdownMenuSeparator />
-              <a onClick={() => setDeleteDialog(true)}>
+              {/* DELETE BUTTON */}
+              <a
+                onClick={() => {
+                  setDeleteDialog(true);
+                  setDeleteId(info.row.original.id);
+                }}
+              >
                 <DropdownMenuItem className="text-red-600 focus:bg-red-600 focus:text-white">
                   Hapus
                 </DropdownMenuItem>
               </a>
             </DropdownMenuContent>
           </DropdownMenu>
-
-          {/* DELETE DIALOG */}
-          <AlertDialog open={deleteDialog} onOpenChange={setDeleteDialog}>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  This action cannot be undone. This will permanently delete
-                  your account and remove your data from our servers.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Batal</AlertDialogCancel>
-                <AlertDialogAction
-                  className="bg-red-600 text-white hover:bg-red-700 focus:ring-red-500"
-                  onClick={() => {
-                    handleDelete(info.row.original.id);
-                  }}
-                >
-                  Hapus
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
         </>
       ),
     }),
@@ -159,40 +142,65 @@ export default function DataTable({
   });
 
   return (
-    <Table>
-      {loading ? (
-        <TableCaption>Mohon Tunggu...</TableCaption>
-      ) : data.length === 0 ? (
-        <TableCaption>Tidak ada data</TableCaption>
-      ) : (
-        <TableCaption>Daftar data ormas</TableCaption>
-      )}
-      <TableHeader>
-        {table.getHeaderGroups().map((headerGroup) => (
-          <TableRow key={headerGroup.id}>
-            {headerGroup.headers.map((header) => (
-              <TableHead key={header.id}>
-                {flexRender(
-                  header.column.columnDef.header,
-                  header.getContext()
-                )}
-              </TableHead>
-            ))}
-          </TableRow>
-        ))}
-      </TableHeader>
-      <TableBody>
-        {!loading &&
-          table.getRowModel().rows.map((row) => (
-            <TableRow key={row.id}>
-              {row.getVisibleCells().map((cell) => (
-                <TableCell key={cell.id}>
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </TableCell>
+    <>
+      <Table>
+        {loading ? (
+          <TableCaption>Mohon Tunggu...</TableCaption>
+        ) : data.length === 0 ? (
+          <TableCaption>Tidak ada data</TableCaption>
+        ) : (
+          <TableCaption>Daftar data ormas</TableCaption>
+        )}
+        <TableHeader>
+          {table.getHeaderGroups().map((headerGroup) => (
+            <TableRow key={headerGroup.id}>
+              {headerGroup.headers.map((header) => (
+                <TableHead key={header.id}>
+                  {flexRender(
+                    header.column.columnDef.header,
+                    header.getContext()
+                  )}
+                </TableHead>
               ))}
             </TableRow>
           ))}
-      </TableBody>
-    </Table>
+        </TableHeader>
+        <TableBody>
+          {!loading &&
+            table.getRowModel().rows.map((row) => (
+              <TableRow key={row.id}>
+                {row.getVisibleCells().map((cell) => (
+                  <TableCell key={cell.id}>
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))}
+        </TableBody>
+      </Table>
+      {/* DELETE DIALOG */}
+      <AlertDialog open={deleteDialog} onOpenChange={setDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete your
+              account and remove your data from our servers.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Batal</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-red-600 text-white hover:bg-red-700 focus:ring-red-500"
+              onClick={() => {
+                handleDelete(deleteId);
+              }}
+            >
+              Hapus
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }

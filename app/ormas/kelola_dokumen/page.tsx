@@ -12,7 +12,7 @@ import {
   CardContent,
   CardFooter,
 } from "@/components/ui/card";
-import { getAllDokumenOrmasWithNamaOrmas } from "@/lib/queries/dokumenOrmas";
+import { getAllDokumenOrmasDataWithNamaOrmas } from "@/lib/queries/dokumenOrmas";
 
 type DokumenRecord = {
   id: number;
@@ -47,14 +47,14 @@ export default function Page() {
   const { data, isLoading } = useQuery<DokumenData>({
     queryKey: ["dokumenRecords"],
     queryFn: async () => {
-      const dokumenRecords = await getAllDokumenOrmasWithNamaOrmas();
+      const dokumenRecords = await getAllDokumenOrmasDataWithNamaOrmas();
       return { dokumenRecords };
     },
   });
 
   const refreshData = useMutation({
     mutationFn: async () => {
-      const dokumenRecords = await getAllDokumenOrmasWithNamaOrmas();
+      const dokumenRecords = await getAllDokumenOrmasDataWithNamaOrmas();
       return { dokumenRecords };
     },
     onSuccess: (data) => {

@@ -8,7 +8,7 @@ import {
 } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 
-export async function getAllDokumenOrmasWithNamaOrmas() {
+export async function getAllDokumenOrmasDataWithNamaOrmas() {
   return await db
     .select({
       namaOrmas: OrmasTable.namaOrmas,
@@ -25,7 +25,7 @@ export async function getAllDokumenOrmasWithNamaOrmas() {
     .leftJoin(OrmasTable, eq(OrmasTable.id, DetailOrmasTable.OrmasId));
 }
 
-export async function getDokumenOrmas(id: number) {
+export async function getDokumenOrmasData(id: number) {
   return await db
     .select({
       id: DokumenOrmasTable.id,
@@ -47,6 +47,30 @@ export async function addDokumenOrmasData(formData: FormData, id: number) {
       linkDokumen,
       statusDokumen: "pengajuan",
     });
+  } catch (error) {
+    console.error("Error inserting data:", error);
+  }
+}
+
+export async function editDokumenOrmasData(id: number) {
+  const result = await db
+    .select({
+      judulDokumen: DokumenOrmasTable.judulDokumen,
+      linkDokumen: DokumenOrmasTable.linkDokumen,
+    })
+    .from(DokumenOrmasTable)
+    .where(eq(DokumenOrmasTable.id, id));
+  return result[0];
+}
+
+export async function updateDokumenOrmasData(formData: FormData, id: number) {
+  const linkDokumen = formData.get("linkDokumen") as string;
+  const judulDokumen = formData.get("judulDokumen") as string;
+  try {
+    await db
+      .update(DokumenOrmasTable)
+      .set({ judulDokumen, linkDokumen, statusDokumen: "pengajuan" })
+      .where(eq(DokumenOrmasTable.id, id));
   } catch (error) {
     console.error("Error inserting data:", error);
   }

@@ -12,7 +12,6 @@ import {
   CardContent,
   CardFooter,
 } from "@/components/ui/card";
-
 import {
   Dialog,
   DialogClose,
@@ -31,7 +30,7 @@ import { FaCheckCircle } from "react-icons/fa";
 import { MdOutlineError } from "react-icons/md";
 import { DataTable } from "@/app/ormas/detail/[id]/data-table";
 import { getOrmasDetail } from "@/lib/queries/ormas";
-import { getDokumenOrmas } from "@/lib/queries/dokumenOrmas";
+import { getDokumenOrmasData } from "@/lib/queries/dokumenOrmas";
 import { addDokumenOrmasData } from "@/lib/queries/dokumenOrmas";
 
 type OrmasRecord = {
@@ -82,7 +81,7 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
     queryKey: ["ormasRecords", numericId],
     queryFn: async () => {
       const ormasRecords = await getOrmasDetail(numericId);
-      const dokumenRecords = await getDokumenOrmas(numericId);
+      const dokumenRecords = await getDokumenOrmasData(numericId);
       return { ormasRecords, dokumenRecords };
     },
     enabled: !!numericId,
@@ -91,7 +90,7 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
   const refreshData = useMutation({
     mutationFn: async () => {
       const ormasRecords = await getOrmasDetail(numericId);
-      const dokumenRecords = await getDokumenOrmas(numericId);
+      const dokumenRecords = await getDokumenOrmasData(numericId);
       return { ormasRecords, dokumenRecords };
     },
     onSuccess: (data) => {
@@ -254,6 +253,8 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
                       <DataTable
                         data={data.dokumenRecords}
                         loading={isLoading || refreshData.isPending}
+                        onUpdateData={refreshData.mutate}
+                        onDeleteData={refreshData.mutate}
                       />
                     </div>
                   </CardContent>
