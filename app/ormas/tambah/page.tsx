@@ -38,11 +38,13 @@ export default function Page() {
   const [username, setUsername] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [namaOrmas, setNamaOrmas] = useState<string>("");
+  const [namaKetuaOrmas, setNamaKetuaOrmas] = useState<string>("");
+  const [namaSekretarisOrmas, setNamaSekretarisOrmas] = useState<string>("");
   const [singkatanOrmas, setSingkatanOrmas] = useState<string>("");
   const [alamatOrmas, setAlamatOrmas] = useState<string>("");
   const [noTelpOrmas, setNoTelpOrmas] = useState<string>("");
   const [skBadanHukum, setSkBadanHukum] = useState<string>("");
-  const [skBadanKeperguruan, setSkBadanKeperguruan] = useState<string>("");
+  const [skKeperguruan, setSkKeperguruan] = useState<string>("");
   const [adArt, setAdArt] = useState<string>("");
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -59,10 +61,12 @@ export default function Page() {
       //ormas data
       namaOrmas: namaOrmas,
       singkatanOrmas: singkatanOrmas,
+      namaKetuaOrmas: namaKetuaOrmas,
+      namaSekretarisOrmas: namaSekretarisOrmas,
       alamatOrmas: alamatOrmas,
       noTelpOrmas: noTelpOrmas,
       skBadanHukum: skBadanHukum,
-      skBadanKeperguruan: skBadanKeperguruan,
+      skKeperguruan: skKeperguruan,
       adArt: adArt,
     };
 
@@ -75,11 +79,13 @@ export default function Page() {
       setUsername("");
       setEmail("");
       setNamaOrmas("");
+      setNamaKetuaOrmas("");
+      setNamaSekretarisOrmas("");
       setSingkatanOrmas("");
       setAlamatOrmas("");
       setNoTelpOrmas("");
       setSkBadanHukum("");
-      setSkBadanKeperguruan("");
+      setSkKeperguruan("");
       setAdArt("");
       console.log("submit success");
       router.push("/ormas"); // 🔀 redirect
@@ -179,6 +185,43 @@ export default function Page() {
                         </div>
                         <div className="p-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mb-3 lg:mb-0">
                           <div>
+                            <Label className="mb-2" htmlFor="namaKetuaOrmas">
+                              Nama Ketua Ormas
+                              <span className="text-red-500">*</span>
+                            </Label>
+                            <Input
+                              id="namaKetuaOrmas"
+                              type="text"
+                              placeholder="namaKetuaOrmas"
+                              value={namaKetuaOrmas}
+                              onChange={(e) =>
+                                setNamaKetuaOrmas(e.target.value)
+                              }
+                              required
+                            />
+                          </div>
+                          <div>
+                            <Label
+                              className="mb-2"
+                              htmlFor="namaSekretarisOrmas"
+                            >
+                              Nama Sekretaris Ormas
+                              <span className="text-red-500">*</span>
+                            </Label>
+                            <Input
+                              id="namaSekretarisOrmas"
+                              type="text"
+                              placeholder="namaSekretarisOrmas"
+                              value={namaSekretarisOrmas}
+                              onChange={(e) =>
+                                setNamaSekretarisOrmas(e.target.value)
+                              }
+                              required
+                            />
+                          </div>
+                        </div>
+                        <div className="p-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mb-3 lg:mb-0">
+                          <div>
                             <Label className="mb-2" htmlFor="alamatOrmas">
                               Alamat Ormas
                               <span className="text-red-500">*</span>
@@ -223,21 +266,16 @@ export default function Page() {
                             />
                           </div>
                           <div>
-                            <Label
-                              className="mb-2"
-                              htmlFor="skBadanKeperguruan"
-                            >
+                            <Label className="mb-2" htmlFor="skKeperguruan">
                               SK Badan Keperguruan
                               <span className="text-red-500">*</span>
                             </Label>
                             <Input
-                              id="skBadanKeperguruan"
+                              id="skKeperguruan"
                               type="text"
                               placeholder="SK Badan Keperguruan"
-                              value={skBadanKeperguruan}
-                              onChange={(e) =>
-                                setSkBadanKeperguruan(e.target.value)
-                              }
+                              value={skKeperguruan}
+                              onChange={(e) => setSkKeperguruan(e.target.value)}
                               required
                             />
                           </div>

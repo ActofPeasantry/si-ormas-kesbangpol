@@ -53,8 +53,12 @@ export const DetailOrmasTable = mysqlTable("detail_ormas", {
       onDelete: "cascade",
       onUpdate: "cascade",
     }),
+  namaKetuaOrmas: varchar("nama_ketua_ormas", { length: 255 }).notNull(),
+  namaSekretarisOrmas: varchar("nama_sekretaris_ormas", {
+    length: 255,
+  }).notNull(),
   skBadanHukum: varchar("sk_badan_hukum", { length: 255 }).notNull(),
-  skBadanKeperguruan: varchar("sk_badan_keperguruan", {
+  skKeperguruan: varchar("sk_keperguruan", {
     length: 255,
   }).notNull(),
   adArt: varchar("ad_art", { length: 255 }).notNull(),

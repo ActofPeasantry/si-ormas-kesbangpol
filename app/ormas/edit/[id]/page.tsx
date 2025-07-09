@@ -21,10 +21,12 @@ type OrmasRecord = {
   id: number;
   namaOrmas: string | null;
   singkatanOrmas: string | null;
+  namaKetuaOrmas: string | null;
+  namaSekretarisOrmas: string | null;
   alamatOrmas: string | null;
   noTelpOrmas: string | null;
   skBadanHukum: string | null;
-  skBadanKeperguruan: string | null;
+  skKeperguruan: string | null;
   adArt: string | null;
 };
 type OrmasData = {
@@ -77,10 +79,12 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
     const fields = {
       namaOrmas: formState.namaOrmas ?? "",
       singkatanOrmas: formState.singkatanOrmas ?? "",
+      namaKetuaOrmas: formState.namaKetuaOrmas ?? "",
+      namaSekretarisOrmas: formState.namaSekretarisOrmas ?? "",
       alamatOrmas: formState.alamatOrmas ?? "",
       noTelpOrmas: formState.noTelpOrmas ?? "",
       skBadanHukum: formState.skBadanHukum ?? "",
-      skBadanKeperguruan: formState.skBadanKeperguruan ?? "",
+      skKeperguruan: formState.skKeperguruan ?? "",
       adArt: formState.adArt ?? "",
     };
 
@@ -172,6 +176,49 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
                         </div>
                         <div className="p-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mb-3 lg:mb-0">
                           <div>
+                            <Label className="mb-2" htmlFor="namaKetuaOrmas">
+                              Nama Ketua Ormas
+                              <span className="text-red-500">*</span>
+                            </Label>
+                            <Input
+                              id="namaKetuaOrmas"
+                              type="text"
+                              placeholder="Nama Ketua Ormas"
+                              value={formState.namaKetuaOrmas || ""}
+                              onChange={(e) =>
+                                setFormState({
+                                  ...formState,
+                                  namaKetuaOrmas: e.target.value,
+                                })
+                              }
+                              required
+                            />
+                          </div>
+                          <div>
+                            <Label
+                              className="mb-2"
+                              htmlFor="namaSekretarisOrmas"
+                            >
+                              Nama Sekretaris Ormas
+                              <span className="text-red-500">*</span>
+                            </Label>
+                            <Input
+                              id="namaSekretarisOrmas"
+                              type="text"
+                              placeholder="Nama Sekretaris Ormas"
+                              value={formState.namaSekretarisOrmas || ""}
+                              onChange={(e) =>
+                                setFormState({
+                                  ...formState,
+                                  namaSekretarisOrmas: e.target.value,
+                                })
+                              }
+                              required
+                            />
+                          </div>
+                        </div>
+                        <div className="p-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mb-3 lg:mb-0">
+                          <div>
                             <Label className="mb-2" htmlFor="alamatOrmas">
                               Alamat Ormas
                               <span className="text-red-500">*</span>
@@ -231,22 +278,19 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
                             />
                           </div>
                           <div>
-                            <Label
-                              className="mb-2"
-                              htmlFor="skBadanKeperguruan"
-                            >
+                            <Label className="mb-2" htmlFor="skKeperguruan">
                               SK Badan Keperguruan
                               <span className="text-red-500">*</span>
                             </Label>
                             <Input
-                              id="skBadanKeperguruan"
+                              id="skKeperguruan"
                               type="text"
                               placeholder="SK Badan Keperguruan"
-                              value={formState.skBadanKeperguruan || ""}
+                              value={formState.skKeperguruan || ""}
                               onChange={(e) =>
                                 setFormState({
                                   ...formState,
-                                  skBadanKeperguruan: e.target.value,
+                                  skKeperguruan: e.target.value,
                                 })
                               }
                               required

@@ -26,10 +26,12 @@ export async function getOrmasDetail(id: number) {
       namaOrmas: OrmasTable.namaOrmas,
       singkatanOrmas: OrmasTable.singkatanOrmas,
       statusOrmas: OrmasTable.statusOrmas,
+      namaKetuaOrmas: DetailOrmasTable.namaKetuaOrmas,
+      namaSekretarisOrmas: DetailOrmasTable.namaSekretarisOrmas,
       noTelpOrmas: DetailOrmasTable.noTelpOrmas,
       alamatOrmas: DetailOrmasTable.alamatOrmas,
       skBadanHukum: DetailOrmasTable.skBadanHukum,
-      skBadanKeperguruan: DetailOrmasTable.skBadanKeperguruan,
+      skKeperguruan: DetailOrmasTable.skKeperguruan,
       adArt: DetailOrmasTable.adArt,
     })
     .from(OrmasTable)
@@ -48,10 +50,12 @@ export async function addOrmasData(formData: FormData) {
   const singkatanOrmas = formData.get("singkatanOrmas") as string;
 
   // Detail Ormas
+  const namaKetuaOrmas = formData.get("namaKetuaOrmas") as string;
+  const namaSekretarisOrmas = formData.get("namaSekretarisOrmas") as string;
   const alamatOrmas = formData.get("alamatOrmas") as string;
   const noTelpOrmas = formData.get("noTelpOrmas") as string;
   const skBadanHukum = formData.get("skBadanHukum") as string;
-  const skBadanKeperguruan = formData.get("skBadanKeperguruan") as string;
+  const skKeperguruan = formData.get("skKeperguruan") as string;
   const adArt = formData.get("adArt") as string;
 
   try {
@@ -79,10 +83,12 @@ export async function addOrmasData(formData: FormData) {
     // Insert detail_ormas
     await db.insert(DetailOrmasTable).values({
       OrmasId: ormasId,
+      namaKetuaOrmas,
+      namaSekretarisOrmas,
       alamatOrmas,
       noTelpOrmas,
       skBadanHukum,
-      skBadanKeperguruan,
+      skKeperguruan,
       adArt,
     });
 
@@ -100,10 +106,12 @@ export async function editOrmasData(id: number) {
       namaOrmas: OrmasTable.namaOrmas,
       singkatanOrmas: OrmasTable.singkatanOrmas,
       // statusOrmas: OrmasTable.statusOrmas,
+      namaKetuaOrmas: DetailOrmasTable.namaKetuaOrmas,
+      namaSekretarisOrmas: DetailOrmasTable.namaSekretarisOrmas,
       alamatOrmas: DetailOrmasTable.alamatOrmas,
       noTelpOrmas: DetailOrmasTable.noTelpOrmas,
       skBadanHukum: DetailOrmasTable.skBadanHukum,
-      skBadanKeperguruan: DetailOrmasTable.skBadanKeperguruan,
+      skKeperguruan: DetailOrmasTable.skKeperguruan,
       adArt: DetailOrmasTable.adArt,
     })
     .from(OrmasTable)
@@ -118,10 +126,12 @@ export async function updateOrmasData(id: number, formData: FormData) {
   const singkatanOrmas = formData.get("singkatanOrmas") as string;
 
   // Detail Ormas
+  const namaKetuaOrmas = formData.get("namaKetuaOrmas") as string;
+  const namaSekretarisOrmas = formData.get("namaSekretarisOrmas") as string;
   const alamatOrmas = formData.get("alamatOrmas") as string;
   const noTelpOrmas = formData.get("noTelpOrmas") as string;
   const skBadanHukum = formData.get("skBadanHukum") as string;
-  const skBadanKeperguruan = formData.get("skBadanKeperguruan") as string;
+  const skKeperguruan = formData.get("skKeperguruan") as string;
   const adArt = formData.get("adArt") as string;
 
   try {
@@ -138,10 +148,12 @@ export async function updateOrmasData(id: number, formData: FormData) {
     await db
       .update(DetailOrmasTable)
       .set({
+        namaKetuaOrmas,
+        namaSekretarisOrmas,
         alamatOrmas,
         noTelpOrmas,
         skBadanHukum,
-        skBadanKeperguruan,
+        skKeperguruan,
         adArt,
       })
       .where(eq(DetailOrmasTable.OrmasId, id));

@@ -38,10 +38,12 @@ type OrmasRecord = {
   statusOrmas: string | null;
   namaOrmas: string | null;
   singkatanOrmas: string | null;
+  namaKetuaOrmas: string | null;
+  namaSekretarisOrmas: string | null;
   alamatOrmas: string | null;
   noTelpOrmas: string | null;
   skBadanHukum: string | null;
-  skBadanKeperguruan: string | null;
+  skKeperguruan: string | null;
   adArt: string | null;
 };
 
@@ -176,14 +178,28 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
                     </div>
                     <div className="p-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-1 mb-1 lg:mb-0">
                       <div className="flex flex-col gap-1">
-                        <span className="font-semibold">SK Badan Hukum</span>
+                        <span className="font-semibold">Nama Ketua Ormas</span>
+                        <span>{data.ormasRecords[0].namaKetuaOrmas}</span>
+                      </div>
+                      <div className="flex flex-col gap-1">
+                        <span className="font-semibold">
+                          SK Badan Keperguruan
+                        </span>
+                        <span>{data.ormasRecords[0].namaSekretarisOrmas}</span>
+                      </div>
+                    </div>
+                    <div className="p-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-1 mb-1 lg:mb-0">
+                      <div className="flex flex-col gap-1">
+                        <span className="font-semibold">
+                          Nama Sekretaris Ormas
+                        </span>
                         <span>{data.ormasRecords[0].skBadanHukum}</span>
                       </div>
                       <div className="flex flex-col gap-1">
                         <span className="font-semibold">
                           SK Badan Keperguruan
                         </span>
-                        <span>{data.ormasRecords[0].skBadanKeperguruan}</span>
+                        <span>{data.ormasRecords[0].skKeperguruan}</span>
                       </div>
                       <div className="flex flex-col gap-1">
                         <span className="font-semibold">AD/ART</span>
