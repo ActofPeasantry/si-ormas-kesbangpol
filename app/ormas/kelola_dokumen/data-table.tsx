@@ -29,6 +29,7 @@ import {
   IconChevronsRight,
 } from "@tabler/icons-react";
 import { IoDocumentTextSharp } from "react-icons/io5";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { FaCheckCircle } from "react-icons/fa";
 import { MdOutlineError } from "react-icons/md";
@@ -46,9 +47,13 @@ type DokumenRecord = {
 export const DataTable = ({
   data,
   loading,
+  isSubmittedTable,
+  setStoredId,
 }: {
   data: DokumenRecord[];
   loading: boolean;
+  isSubmittedTable: boolean;
+  setStoredId?: React.Dispatch<React.SetStateAction<number[]>>;
 }) => {
   const [pagination, setPagination] = useState({
     pageIndex: 0,
@@ -75,7 +80,7 @@ export const DataTable = ({
   };
 
   const columnHelper = createColumnHelper<DokumenRecord>();
-  const columns = [
+  const baseColumns = [
     columnHelper.accessor("namaOrmas", {
       header: "Nama Ormas",
     }),
@@ -109,6 +114,65 @@ export const DataTable = ({
       ),
     }),
   ];
+
+  const selectColumns = [
+    columnHelper.accessor("id", {
+      header: ({ table }) => (
+        <div className="flex items-center justify-center">
+          <Checkbox
+            checked={
+              table.getIsAllPageRowsSelected() ||
+              (table.getIsSomePageRowsSelected() && "indeterminate")
+            }
+            onCheckedChange={(value) => {
+              table.toggleAllPageRowsSelected(!!value);
+              const selectedIds = table
+                .getRowModel()
+                .rows.map((row) => row.original.id);
+              if (setStoredId) {
+                setStoredId(value ? selectedIds : []);
+              }
+            }}
+            aria-label="Select all"
+          />
+        </div>
+      ),
+      cell: ({ row }) => (
+        <div className="flex items-center justify-center">
+          <Checkbox
+            checked={row.getIsSelected()}
+            onCheckedChange={(value) => {
+              row.toggleSelected(!!value);
+
+              if (setStoredId) {
+                const rowId = row.original.id;
+
+                setStoredId((prev) => {
+                  // Add if checked
+                  if (value === true) {
+                    return [...new Set([...prev, rowId])];
+                  }
+                  // Remove if unchecked
+                  if (value === false) {
+                    return prev.filter((id) => id !== rowId);
+                  }
+
+                  return prev;
+                });
+              }
+            }}
+            aria-label="Select row"
+          />
+        </div>
+      ),
+      enableSorting: false,
+      enableHiding: false,
+    }),
+  ];
+
+  const columns = isSubmittedTable
+    ? [...selectColumns, ...baseColumns]
+    : baseColumns;
 
   const table = useReactTable({
     data,

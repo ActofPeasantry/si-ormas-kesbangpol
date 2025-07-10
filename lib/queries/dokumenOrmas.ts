@@ -25,6 +25,59 @@ export async function getAllDokumenOrmasDataWithNamaOrmas() {
     .leftJoin(OrmasTable, eq(OrmasTable.id, DetailOrmasTable.OrmasId));
 }
 
+export async function getSubmittedDokumenOrmasDataWithNamaOrmas() {
+  return await db
+    .select({
+      namaOrmas: OrmasTable.namaOrmas,
+      id: DokumenOrmasTable.id,
+      judulDokumen: DokumenOrmasTable.judulDokumen,
+      linkDokumen: DokumenOrmasTable.linkDokumen,
+      statusDokumen: DokumenOrmasTable.statusDokumen,
+    })
+    .from(DokumenOrmasTable)
+    .leftJoin(
+      DetailOrmasTable,
+      eq(DokumenOrmasTable.detailOrmasId, DetailOrmasTable.id)
+    )
+    .leftJoin(OrmasTable, eq(OrmasTable.id, DetailOrmasTable.OrmasId))
+    .where(eq(DokumenOrmasTable.statusDokumen, "pengajuan"));
+}
+
+export async function getAcceptedDokumenOrmasDataWithNamaOrmas() {
+  return await db
+    .select({
+      namaOrmas: OrmasTable.namaOrmas,
+      id: DokumenOrmasTable.id,
+      judulDokumen: DokumenOrmasTable.judulDokumen,
+      linkDokumen: DokumenOrmasTable.linkDokumen,
+      statusDokumen: DokumenOrmasTable.statusDokumen,
+    })
+    .from(DokumenOrmasTable)
+    .leftJoin(
+      DetailOrmasTable,
+      eq(DokumenOrmasTable.detailOrmasId, DetailOrmasTable.id)
+    )
+    .leftJoin(OrmasTable, eq(OrmasTable.id, DetailOrmasTable.OrmasId))
+    .where(eq(DokumenOrmasTable.statusDokumen, "diterima"));
+}
+export async function getRejectedDokumenOrmasDataWithNamaOrmas() {
+  return await db
+    .select({
+      namaOrmas: OrmasTable.namaOrmas,
+      id: DokumenOrmasTable.id,
+      judulDokumen: DokumenOrmasTable.judulDokumen,
+      linkDokumen: DokumenOrmasTable.linkDokumen,
+      statusDokumen: DokumenOrmasTable.statusDokumen,
+    })
+    .from(DokumenOrmasTable)
+    .leftJoin(
+      DetailOrmasTable,
+      eq(DokumenOrmasTable.detailOrmasId, DetailOrmasTable.id)
+    )
+    .leftJoin(OrmasTable, eq(OrmasTable.id, DetailOrmasTable.OrmasId))
+    .where(eq(DokumenOrmasTable.statusDokumen, "ditolak"));
+}
+
 export async function getDokumenOrmasData(id: number) {
   return await db
     .select({

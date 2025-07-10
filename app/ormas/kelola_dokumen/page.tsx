@@ -1,9 +1,11 @@
 "use client";
+import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AppSidebar } from "@/components/app-sidebar";
 import { SiteHeader } from "@/components/site-header";
 import { DataTable } from "@/app/ormas/kelola_dokumen/data-table";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Card,
   CardDescription,
@@ -12,7 +14,13 @@ import {
   CardContent,
   CardFooter,
 } from "@/components/ui/card";
-import { getAllDokumenOrmasDataWithNamaOrmas } from "@/lib/queries/dokumenOrmas";
+import { IconCheckbox } from "@tabler/icons-react";
+import { IconX } from "@tabler/icons-react";
+import { Button } from "@/components/ui/button";
+import {
+  // getAllDokumenOrmasDataWithNamaOrmas,
+  getSubmittedDokumenOrmasDataWithNamaOrmas,
+} from "@/lib/queries/dokumenOrmas";
 
 type DokumenRecord = {
   id: number;
@@ -42,23 +50,35 @@ const breadcrumb = [
 ];
 
 export default function Page() {
+  const [storedId, setStoredId] = useState<number[]>([]);
+  const [disableButton, setDisableButton] = useState(true);
+
+  useEffect(() => {
+    if (storedId.length > 0) {
+      console.log("storedId:", storedId);
+      setDisableButton(false);
+    } else {
+      console.log("storedId:", storedId);
+      setDisableButton(true);
+    }
+  }, [storedId]);
+
   const queryClient = useQueryClient();
 
-  const { data, isLoading } = useQuery<DokumenData>({
-    queryKey: ["dokumenRecords"],
+  const { data: submittedDokumen, isLoading } = useQuery<DokumenData>({
+    queryKey: ["submittedDokumenRecords"],
     queryFn: async () => {
-      const dokumenRecords = await getAllDokumenOrmasDataWithNamaOrmas();
+      const dokumenRecords = await getSubmittedDokumenOrmasDataWithNamaOrmas();
       return { dokumenRecords };
     },
   });
-
   const refreshData = useMutation({
     mutationFn: async () => {
-      const dokumenRecords = await getAllDokumenOrmasDataWithNamaOrmas();
+      const dokumenRecords = await getSubmittedDokumenOrmasDataWithNamaOrmas();
       return { dokumenRecords };
     },
     onSuccess: (data) => {
-      queryClient.setQueryData(["dokumenRecords"], data);
+      queryClient.setQueryData(["submittedDokumenRecords"], data);
     },
   });
 
@@ -89,11 +109,59 @@ export default function Page() {
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    {/* Table */}
-                    <DataTable
-                      data={data?.dokumenRecords || []}
-                      loading={isLoading || refreshData.isPending}
-                    />
+                    <Tabs defaultValue="pengajuan">
+                      <TabsList>
+                        <TabsTrigger value="pengajuan">Pengajuan</TabsTrigger>
+                        <TabsTrigger value="diterima">Diterima</TabsTrigger>
+                        <TabsTrigger value="ditolak">Ditolak</TabsTrigger>
+                        <TabsTrigger value="seluruhDokumen">
+                          Seluruh Dokumen
+                        </TabsTrigger>
+                      </TabsList>
+                      <TabsContent value="pengajuan">
+                        <div className="flex w-full items-center my-2 gap-1  ">
+                          <Button
+                            className="bg-emerald-500 text-white cursor-pointer hover:bg-emerald-600"
+                            disabled={disableButton}
+                            size="sm"
+                          >
+                            <IconCheckbox /> Diterima
+                          </Button>
+                          <Button
+                            className="bg-red-500 text-white cursor-pointer hover:bg-red-600"
+                            disabled={disableButton}
+                            size="sm"
+                          >
+                            <IconX />
+                            Ditolak
+                          </Button>
+                        </div>
+                        <DataTable
+                          data={submittedDokumen?.dokumenRecords || []}
+                          loading={isLoading || refreshData.isPending}
+                          isSubmittedTable={true}
+                          setStoredId={setStoredId}
+                        />
+                      </TabsContent>
+                      <TabsContent value="diterima">
+                        {/* <DataTable
+                          data={data?.dokumenRecords || []}
+                          loading={isLoading || refreshData.isPending}
+                        /> */}
+                      </TabsContent>
+                      <TabsContent value="ditolak">
+                        {/* <DataTable
+                          data={data?.dokumenRecords || []}
+                          loading={isLoading || refreshData.isPending}
+                        /> */}
+                      </TabsContent>
+                      <TabsContent value="seluruhDokumen">
+                        {/* <DataTable
+                          data={data?.dokumenRecords || []}
+                          loading={isLoading || refreshData.isPending}
+                        /> */}
+                      </TabsContent>
+                    </Tabs>
                   </CardContent>
                   <CardFooter className="flex-col items-start gap-1.5 text-sm"></CardFooter>
                 </Card>

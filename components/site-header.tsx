@@ -52,7 +52,6 @@ export function SiteHeader({ breadcrumb }: { breadcrumb?: Breadcrumb[] }) {
             ))}
           </BreadcrumbList>
         </Breadcrumb>
-        {/* <h1 className="text-base font-medium">Dashboard</h1> */}
         <div className="ml-auto flex items-center gap-2">
           <NavUser user={data.user} />
           <DarkModeToggle />
