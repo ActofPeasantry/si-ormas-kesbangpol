@@ -6,6 +6,7 @@ import {
   getCoreRowModel,
   getPaginationRowModel,
 } from "@tanstack/react-table";
+import type { TableState } from "@tanstack/react-table"; //only importing the type definition TableState from TanStack Table — not any runtime JavaScript.
 import {
   Table,
   TableBody,
@@ -44,17 +45,25 @@ type DokumenRecord = {
   statusDokumen: string;
 };
 
+interface DataTableProps {
+  data: DokumenRecord[];
+  loading: boolean;
+  isSubmittedTable: boolean;
+  setStoredId?: React.Dispatch<React.SetStateAction<number[]>>;
+  rowSelection?: TableState["rowSelection"];
+  setRowSelection?: React.Dispatch<
+    React.SetStateAction<TableState["rowSelection"]>
+  >;
+}
+
 export const DataTable = ({
   data,
   loading,
   isSubmittedTable,
   setStoredId,
-}: {
-  data: DokumenRecord[];
-  loading: boolean;
-  isSubmittedTable: boolean;
-  setStoredId?: React.Dispatch<React.SetStateAction<number[]>>;
-}) => {
+  rowSelection,
+  setRowSelection,
+}: DataTableProps) => {
   const [pagination, setPagination] = useState({
     pageIndex: 0,
     pageSize: 10,
@@ -178,8 +187,10 @@ export const DataTable = ({
     data,
     columns,
     state: {
+      rowSelection,
       pagination,
     },
+    onRowSelectionChange: setRowSelection,
     getPaginationRowModel: getPaginationRowModel(),
     onPaginationChange: setPagination,
     getCoreRowModel: getCoreRowModel(),

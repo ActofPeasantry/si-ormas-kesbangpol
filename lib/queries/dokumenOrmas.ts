@@ -105,6 +105,27 @@ export async function addDokumenOrmasData(formData: FormData, id: number) {
   }
 }
 
+export async function acceptDokumenOrmas(id: number) {
+  try {
+    await db
+      .update(DokumenOrmasTable)
+      .set({ statusDokumen: "diterima", updatedAt: new Date() })
+      .where(eq(DokumenOrmasTable.id, id));
+  } catch (error) {
+    console.error("Error inserting data:", error);
+  }
+}
+export async function refuseDokumenOrmas(id: number) {
+  try {
+    await db
+      .update(DokumenOrmasTable)
+      .set({ statusDokumen: "ditolak", updatedAt: new Date() })
+      .where(eq(DokumenOrmasTable.id, id));
+  } catch (error) {
+    console.error("Error inserting data:", error);
+  }
+}
+
 export async function editDokumenOrmasData(id: number) {
   const result = await db
     .select({
