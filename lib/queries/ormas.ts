@@ -99,6 +99,13 @@ export async function addOrmasData(formData: FormData) {
   }
 }
 
+export async function activateOrmas(id: number) {
+  await db
+    .update(OrmasTable)
+    .set({ statusOrmas: "Aktif" })
+    .where(eq(OrmasTable.id, id));
+}
+
 export async function editOrmasData(id: number) {
   const result = await db
     .select({

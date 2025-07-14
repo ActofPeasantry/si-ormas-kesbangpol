@@ -52,7 +52,7 @@ import {
   getCoreRowModel,
   getPaginationRowModel,
 } from "@tanstack/react-table";
-import { deleteOrmasData } from "@/lib/queries/ormas";
+import { activateOrmas, deleteOrmasData } from "@/lib/queries/ormas";
 
 type OrmasRecord = {
   id: number;
@@ -63,21 +63,35 @@ type OrmasRecord = {
   statusOrmas: string;
 };
 
-export default function DataTable({
-  data,
-  loading,
-  onDeleteData,
-}: {
+interface DataTableProps {
   data: OrmasRecord[];
   loading: boolean;
   onDeleteData: () => void;
-}) {
+  onUpdateData: () => void;
+}
+
+export const DataTable = ({
+  data,
+  loading,
+  onDeleteData,
+  onUpdateData,
+}: DataTableProps) => {
   const [deleteDialog, setDeleteDialog] = useState(false);
   const [deleteId, setDeleteId] = useState<number>(0);
   const [pagination, setPagination] = useState({
     pageIndex: 0,
     pageSize: 10,
   });
+
+  const handleActivation = async (id: number) => {
+    try {
+      await activateOrmas(id);
+      onUpdateData();
+      console.log("Activated ormas");
+    } catch (error) {
+      console.error("Error activating ormas:", error);
+    }
+  };
 
   const handleDelete = async (id: number) => {
     await deleteOrmasData(id);
@@ -129,6 +143,16 @@ export default function DataTable({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-32">
+              {info.row.original.statusOrmas === "Non Aktif" && (
+                <>
+                  <DropdownMenuItem
+                    onClick={() => handleActivation(info.row.original.id)}
+                  >
+                    Aktifkan
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                </>
+              )}
               <Link href={`/ormas/detail/${info.row.original.id}`}>
                 <DropdownMenuItem>Detail</DropdownMenuItem>
               </Link>
@@ -305,4 +329,4 @@ export default function DataTable({
       </AlertDialog>
     </>
   );
-}
+};
