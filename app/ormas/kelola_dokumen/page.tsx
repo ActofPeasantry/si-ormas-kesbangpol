@@ -3,9 +3,11 @@ import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AppSidebar } from "@/components/app-sidebar";
 import { SiteHeader } from "@/components/site-header";
-import { DataTable } from "@/app/ormas/kelola_dokumen/data-table";
+import { DataTable } from "@/app/ormas/kelola_dokumen/DataTable";
+import { SubmittedDataTable } from "@/app/ormas/kelola_dokumen/SubmittedDataTable";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
 import {
   Card,
   CardDescription,
@@ -29,6 +31,8 @@ import { IconX } from "@tabler/icons-react";
 import { Button } from "@/components/ui/button";
 import {
   acceptDokumenOrmas,
+  getAcceptedDokumenOrmasDataWithNamaOrmas,
+  getRejectedDokumenOrmasDataWithNamaOrmas,
   // getAllDokumenOrmasDataWithNamaOrmas,
   getSubmittedDokumenOrmasDataWithNamaOrmas,
   refuseDokumenOrmas,
@@ -43,7 +47,10 @@ type DokumenRecord = {
 };
 
 type DokumenData = {
-  dokumenRecords: DokumenRecord[];
+  submittedRecords: DokumenRecord[];
+  acceptedRecords: DokumenRecord[];
+  rejectedRecords: DokumenRecord[];
+  allRecords: DokumenRecord[];
 };
 
 const breadcrumb = [
@@ -78,7 +85,6 @@ export default function Page() {
       console.error("Error accepting documents:", error);
     }
   };
-
   const handleRefusedDocuments = async (event: React.FormEvent) => {
     event.preventDefault();
     try {
@@ -102,20 +108,37 @@ export default function Page() {
 
   const queryClient = useQueryClient();
 
-  const { data: submittedDokumen, isLoading } = useQuery<DokumenData>({
-    queryKey: ["submittedDokumenRecords"],
+  const { data, isLoading } = useQuery<DokumenData>({
+    queryKey: ["dokumenRecords"],
     queryFn: async () => {
-      const dokumenRecords = await getSubmittedDokumenOrmasDataWithNamaOrmas();
-      return { dokumenRecords };
+      const submittedRecords =
+        await getSubmittedDokumenOrmasDataWithNamaOrmas();
+      const acceptedRecords = await getAcceptedDokumenOrmasDataWithNamaOrmas();
+      const rejectedRecords = await getRejectedDokumenOrmasDataWithNamaOrmas();
+      const allRecords = [
+        ...submittedRecords,
+        ...acceptedRecords,
+        ...rejectedRecords,
+      ];
+      return { submittedRecords, acceptedRecords, rejectedRecords, allRecords };
     },
   });
+
   const refreshData = useMutation({
     mutationFn: async () => {
-      const dokumenRecords = await getSubmittedDokumenOrmasDataWithNamaOrmas();
-      return { dokumenRecords };
+      const submittedRecords =
+        await getSubmittedDokumenOrmasDataWithNamaOrmas();
+      const acceptedRecords = await getAcceptedDokumenOrmasDataWithNamaOrmas();
+      const rejectedRecords = await getRejectedDokumenOrmasDataWithNamaOrmas();
+      const allRecords = [
+        ...submittedRecords,
+        ...acceptedRecords,
+        ...rejectedRecords,
+      ];
+      return { submittedRecords, acceptedRecords, rejectedRecords, allRecords };
     },
     onSuccess: (data) => {
-      queryClient.setQueryData(["submittedDokumenRecords"], data);
+      queryClient.setQueryData(["dokumenRecords"], data);
     },
   });
 
@@ -148,15 +171,35 @@ export default function Page() {
                   <CardContent>
                     <Tabs defaultValue="pengajuan">
                       <TabsList>
-                        <TabsTrigger value="pengajuan">Pengajuan</TabsTrigger>
-                        <TabsTrigger value="diterima">Diterima</TabsTrigger>
-                        <TabsTrigger value="ditolak">Ditolak</TabsTrigger>
+                        <TabsTrigger value="pengajuan">
+                          Pengajuan{" "}
+                          <Badge variant="secondary">
+                            {data?.submittedRecords.length}
+                          </Badge>
+                        </TabsTrigger>
+                        <TabsTrigger value="diterima">
+                          Diterima{" "}
+                          <Badge variant="secondary">
+                            {data?.acceptedRecords.length}
+                          </Badge>
+                        </TabsTrigger>
+                        <TabsTrigger value="ditolak">
+                          Ditolak{" "}
+                          <Badge variant="secondary">
+                            {data?.rejectedRecords.length}
+                          </Badge>
+                        </TabsTrigger>
                         <TabsTrigger value="seluruhDokumen">
-                          Seluruh Dokumen
+                          Seluruh Dokumen{" "}
+                          <Badge variant="secondary">
+                            {data?.allRecords.length}
+                          </Badge>
                         </TabsTrigger>
                       </TabsList>
+                      {/* pengajuan table */}
                       <TabsContent value="pengajuan">
                         <div className="flex w-full items-center my-2 gap-1  ">
+                          {/* accept/refuse button */}
                           <Dialog>
                             <DialogTrigger asChild>
                               <Button
@@ -198,7 +241,6 @@ export default function Page() {
                               </form>
                             </DialogContent>
                           </Dialog>
-
                           <Dialog>
                             <DialogTrigger asChild>
                               <Button
@@ -240,8 +282,8 @@ export default function Page() {
                             </DialogContent>
                           </Dialog>
                         </div>
-                        <DataTable
-                          data={submittedDokumen?.dokumenRecords || []}
+                        <SubmittedDataTable
+                          data={data?.submittedRecords || []}
                           loading={isLoading || refreshData.isPending}
                           isSubmittedTable={true}
                           setStoredId={setStoredId}
@@ -249,23 +291,24 @@ export default function Page() {
                           setRowSelection={setRowSelection}
                         />
                       </TabsContent>
+                      {/* diterima table */}
                       <TabsContent value="diterima">
-                        {/* <DataTable
-                          data={data?.dokumenRecords || []}
+                        <DataTable
+                          data={data?.acceptedRecords || []}
                           loading={isLoading || refreshData.isPending}
-                        /> */}
+                        />
                       </TabsContent>
                       <TabsContent value="ditolak">
-                        {/* <DataTable
-                          data={data?.dokumenRecords || []}
+                        <DataTable
+                          data={data?.rejectedRecords || []}
                           loading={isLoading || refreshData.isPending}
-                        /> */}
+                        />
                       </TabsContent>
                       <TabsContent value="seluruhDokumen">
-                        {/* <DataTable
-                          data={data?.dokumenRecords || []}
+                        <DataTable
+                          data={data?.allRecords || []}
                           loading={isLoading || refreshData.isPending}
-                        /> */}
+                        />
                       </TabsContent>
                     </Tabs>
                   </CardContent>

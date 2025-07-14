@@ -5,7 +5,7 @@ import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { Card, CardTitle, CardHeader, CardFooter } from "@/components/ui/card";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import DataTable from "@/app/ormas/data-table";
+import DataTable from "@/app/ormas/DataTable";
 import { getOrmasData } from "@/lib/queries/ormas";
 
 type OrmasRecord = {

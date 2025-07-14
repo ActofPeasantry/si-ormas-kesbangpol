@@ -56,7 +56,7 @@ interface DataTableProps {
   >;
 }
 
-export const DataTable = ({
+export const SubmittedDataTable = ({
   data,
   loading,
   isSubmittedTable,
