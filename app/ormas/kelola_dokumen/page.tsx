@@ -3,9 +3,11 @@ import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AppSidebar } from "@/components/app-sidebar";
 import { SiteHeader } from "@/components/site-header";
-import { DataTable } from "@/app/ormas/kelola_dokumen/data-table";
+import { DataTable } from "@/app/ormas/kelola_dokumen/DataTable";
+import { SubmittedDataTable } from "@/app/ormas/kelola_dokumen/SubmittedDataTable";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
 import {
   Card,
   CardDescription,
@@ -14,12 +16,26 @@ import {
   CardContent,
   CardFooter,
 } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { IconCheckbox } from "@tabler/icons-react";
 import { IconX } from "@tabler/icons-react";
 import { Button } from "@/components/ui/button";
 import {
+  acceptDokumenOrmas,
+  getAcceptedDokumenOrmasDataWithNamaOrmas,
+  getRejectedDokumenOrmasDataWithNamaOrmas,
   // getAllDokumenOrmasDataWithNamaOrmas,
   getSubmittedDokumenOrmasDataWithNamaOrmas,
+  refuseDokumenOrmas,
 } from "@/lib/queries/dokumenOrmas";
 
 type DokumenRecord = {
@@ -31,7 +47,10 @@ type DokumenRecord = {
 };
 
 type DokumenData = {
-  dokumenRecords: DokumenRecord[];
+  submittedRecords: DokumenRecord[];
+  acceptedRecords: DokumenRecord[];
+  rejectedRecords: DokumenRecord[];
+  allRecords: DokumenRecord[];
 };
 
 const breadcrumb = [
@@ -52,33 +71,74 @@ const breadcrumb = [
 export default function Page() {
   const [storedId, setStoredId] = useState<number[]>([]);
   const [disableButton, setDisableButton] = useState(true);
+  const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({});
+
+  const handleAcceptedDocuments = async (event: React.FormEvent) => {
+    event.preventDefault();
+    try {
+      await Promise.all(storedId.map((id) => acceptDokumenOrmas(id)));
+      refreshData.mutate();
+      setStoredId([]); //make storedId empty to disable button
+      setRowSelection({}); //so all checked row on table immediately unchecked
+      console.log("Documents accepted and selections cleared");
+    } catch (error) {
+      console.error("Error accepting documents:", error);
+    }
+  };
+  const handleRefusedDocuments = async (event: React.FormEvent) => {
+    event.preventDefault();
+    try {
+      await Promise.all(storedId.map((id) => refuseDokumenOrmas(id)));
+      refreshData.mutate();
+      setStoredId([]); //make storedId empty to disable button
+      setRowSelection({}); //so all checked row on table immediately unchecked
+      console.log("Documents refused and selections cleared");
+    } catch (error) {
+      console.error("Error refusing documents:", error);
+    }
+  };
 
   useEffect(() => {
     if (storedId.length > 0) {
-      console.log("storedId:", storedId);
       setDisableButton(false);
     } else {
-      console.log("storedId:", storedId);
       setDisableButton(true);
     }
   }, [storedId]);
 
   const queryClient = useQueryClient();
 
-  const { data: submittedDokumen, isLoading } = useQuery<DokumenData>({
-    queryKey: ["submittedDokumenRecords"],
+  const { data, isLoading } = useQuery<DokumenData>({
+    queryKey: ["dokumenRecords"],
     queryFn: async () => {
-      const dokumenRecords = await getSubmittedDokumenOrmasDataWithNamaOrmas();
-      return { dokumenRecords };
+      const submittedRecords =
+        await getSubmittedDokumenOrmasDataWithNamaOrmas();
+      const acceptedRecords = await getAcceptedDokumenOrmasDataWithNamaOrmas();
+      const rejectedRecords = await getRejectedDokumenOrmasDataWithNamaOrmas();
+      const allRecords = [
+        ...submittedRecords,
+        ...acceptedRecords,
+        ...rejectedRecords,
+      ];
+      return { submittedRecords, acceptedRecords, rejectedRecords, allRecords };
     },
   });
+
   const refreshData = useMutation({
     mutationFn: async () => {
-      const dokumenRecords = await getSubmittedDokumenOrmasDataWithNamaOrmas();
-      return { dokumenRecords };
+      const submittedRecords =
+        await getSubmittedDokumenOrmasDataWithNamaOrmas();
+      const acceptedRecords = await getAcceptedDokumenOrmasDataWithNamaOrmas();
+      const rejectedRecords = await getRejectedDokumenOrmasDataWithNamaOrmas();
+      const allRecords = [
+        ...submittedRecords,
+        ...acceptedRecords,
+        ...rejectedRecords,
+      ];
+      return { submittedRecords, acceptedRecords, rejectedRecords, allRecords };
     },
     onSuccess: (data) => {
-      queryClient.setQueryData(["submittedDokumenRecords"], data);
+      queryClient.setQueryData(["dokumenRecords"], data);
     },
   });
 
@@ -111,55 +171,150 @@ export default function Page() {
                   <CardContent>
                     <Tabs defaultValue="pengajuan">
                       <TabsList>
-                        <TabsTrigger value="pengajuan">Pengajuan</TabsTrigger>
-                        <TabsTrigger value="diterima">Diterima</TabsTrigger>
-                        <TabsTrigger value="ditolak">Ditolak</TabsTrigger>
+                        <TabsTrigger value="pengajuan">
+                          Pengajuan{" "}
+                          <Badge variant="secondary">
+                            {data?.submittedRecords.length}
+                          </Badge>
+                        </TabsTrigger>
+                        <TabsTrigger value="diterima">
+                          Diterima{" "}
+                          <Badge variant="secondary">
+                            {data?.acceptedRecords.length}
+                          </Badge>
+                        </TabsTrigger>
+                        <TabsTrigger value="ditolak">
+                          Ditolak{" "}
+                          <Badge variant="secondary">
+                            {data?.rejectedRecords.length}
+                          </Badge>
+                        </TabsTrigger>
                         <TabsTrigger value="seluruhDokumen">
-                          Seluruh Dokumen
+                          Seluruh Dokumen{" "}
+                          <Badge variant="secondary">
+                            {data?.allRecords.length}
+                          </Badge>
                         </TabsTrigger>
                       </TabsList>
+                      {/* pengajuan table */}
                       <TabsContent value="pengajuan">
                         <div className="flex w-full items-center my-2 gap-1  ">
-                          <Button
-                            className="bg-emerald-500 text-white cursor-pointer hover:bg-emerald-600"
-                            disabled={disableButton}
-                            size="sm"
-                          >
-                            <IconCheckbox /> Diterima
-                          </Button>
-                          <Button
-                            className="bg-red-500 text-white cursor-pointer hover:bg-red-600"
-                            disabled={disableButton}
-                            size="sm"
-                          >
-                            <IconX />
-                            Ditolak
-                          </Button>
+                          {/* accept/refuse button */}
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <Button
+                                className="bg-emerald-500 text-white cursor-pointer hover:bg-emerald-600"
+                                disabled={disableButton}
+                                size="sm"
+                              >
+                                <IconCheckbox /> Terima Dokumen
+                              </Button>
+                            </DialogTrigger>
+
+                            <DialogContent className="sm:max-w-[425px]">
+                              <form
+                                onSubmit={(e) => handleAcceptedDocuments(e)}
+                              >
+                                <div className="mb-4">
+                                  <DialogHeader>
+                                    <DialogTitle>Terima Dokumen</DialogTitle>
+                                    <DialogDescription></DialogDescription>
+                                  </DialogHeader>
+                                </div>
+                                <div className="grid gap-4">
+                                  <DialogDescription>
+                                    Apakah anda yakin ingin menerima dokumen?
+                                  </DialogDescription>
+                                </div>
+                                <DialogFooter className="mt-3">
+                                  <DialogClose asChild>
+                                    <Button variant="outline" type="button">
+                                      Batal
+                                    </Button>
+                                  </DialogClose>
+                                  <DialogClose asChild>
+                                    <Button variant="outline" type="submit">
+                                      Terima
+                                    </Button>
+                                  </DialogClose>
+                                </DialogFooter>
+                              </form>
+                            </DialogContent>
+                          </Dialog>
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <Button
+                                className="bg-red-500 text-white cursor-pointer hover:bg-red-600"
+                                disabled={disableButton}
+                                size="sm"
+                              >
+                                <IconX />
+                                Tolak Dokumen
+                              </Button>
+                            </DialogTrigger>
+
+                            <DialogContent className="sm:max-w-[425px]">
+                              <form onSubmit={(e) => handleRefusedDocuments(e)}>
+                                <div className="mb-4">
+                                  <DialogHeader>
+                                    <DialogTitle>Terima Dokumen</DialogTitle>
+                                    <DialogDescription></DialogDescription>
+                                  </DialogHeader>
+                                </div>
+                                <div className="grid gap-4">
+                                  <DialogDescription>
+                                    Apakah anda yakin ingin menolak dokumen?
+                                  </DialogDescription>
+                                </div>
+                                <DialogFooter className="mt-3">
+                                  <DialogClose asChild>
+                                    <Button variant="outline" type="button">
+                                      Batal
+                                    </Button>
+                                  </DialogClose>
+                                  <DialogClose asChild>
+                                    <Button variant="outline" type="submit">
+                                      Tolak
+                                    </Button>
+                                  </DialogClose>
+                                </DialogFooter>
+                              </form>
+                            </DialogContent>
+                          </Dialog>
                         </div>
-                        <DataTable
-                          data={submittedDokumen?.dokumenRecords || []}
+                        <SubmittedDataTable
+                          data={data?.submittedRecords || []}
                           loading={isLoading || refreshData.isPending}
                           isSubmittedTable={true}
                           setStoredId={setStoredId}
+                          rowSelection={rowSelection}
+                          setRowSelection={setRowSelection}
                         />
                       </TabsContent>
+                      {/* diterima table */}
                       <TabsContent value="diterima">
-                        {/* <DataTable
-                          data={data?.dokumenRecords || []}
+                        <DataTable
+                          data={data?.acceptedRecords || []}
                           loading={isLoading || refreshData.isPending}
-                        /> */}
+                          onDeleteData={refreshData.mutate}
+                          onUpdateData={refreshData.mutate}
+                        />
                       </TabsContent>
                       <TabsContent value="ditolak">
-                        {/* <DataTable
-                          data={data?.dokumenRecords || []}
+                        <DataTable
+                          data={data?.rejectedRecords || []}
                           loading={isLoading || refreshData.isPending}
-                        /> */}
+                          onDeleteData={refreshData.mutate}
+                          onUpdateData={refreshData.mutate}
+                        />
                       </TabsContent>
                       <TabsContent value="seluruhDokumen">
-                        {/* <DataTable
-                          data={data?.dokumenRecords || []}
+                        <DataTable
+                          data={data?.allRecords || []}
                           loading={isLoading || refreshData.isPending}
-                        /> */}
+                          onDeleteData={refreshData.mutate}
+                          onUpdateData={refreshData.mutate}
+                        />
                       </TabsContent>
                     </Tabs>
                   </CardContent>

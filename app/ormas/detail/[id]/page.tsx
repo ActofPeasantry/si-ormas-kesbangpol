@@ -28,7 +28,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { FaCheckCircle } from "react-icons/fa";
 import { MdOutlineError } from "react-icons/md";
-import { DataTable } from "@/app/ormas/detail/[id]/data-table";
+import { DataTable } from "@/app/ormas/detail/[id]/DataTable";
 import { getOrmasDetail } from "@/lib/queries/ormas";
 import { getDokumenOrmasData } from "@/lib/queries/dokumenOrmas";
 import { addDokumenOrmasData } from "@/lib/queries/dokumenOrmas";

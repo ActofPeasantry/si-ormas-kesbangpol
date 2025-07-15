@@ -1,5 +1,4 @@
 import { useState } from "react";
-import Link from "next/link";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -7,11 +6,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { IoDocumentTextSharp } from "react-icons/io5";
 import { Badge } from "@/components/ui/badge";
 import { FaCheckCircle } from "react-icons/fa";
 import { MdOutlineError } from "react-icons/md";
-import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -46,70 +47,140 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
   useReactTable,
   createColumnHelper,
   flexRender,
   getCoreRowModel,
   getPaginationRowModel,
 } from "@tanstack/react-table";
-import { deleteOrmasData } from "@/lib/queries/ormas";
+import {
+  deleteDokumenOrmasData,
+  editDokumenOrmasData,
+  updateDokumenOrmasData,
+} from "@/lib/queries/dokumenOrmas";
 
-type OrmasRecord = {
+type DokumenRecord = {
   id: number;
-  namaOrmas: string;
-  singkatanOrmas: string;
-  alamatOrmas: string | null;
-  noTelpOrmas: string | null;
-  statusOrmas: string;
+  judulDokumen: string;
+  linkDokumen: string;
+  statusDokumen: string;
 };
 
-export default function DataTable({
+export const DataTable = ({
   data,
   loading,
   onDeleteData,
+  onUpdateData,
 }: {
-  data: OrmasRecord[];
+  data: DokumenRecord[];
   loading: boolean;
   onDeleteData: () => void;
-}) {
+  onUpdateData: () => void;
+}) => {
+  const [editDialog, setEditDialog] = useState(false);
+  const [editjudulDokumen, setEditJudulDokumen] = useState<string>("");
+  const [editLinkDokumen, setEditLinkDokumen] = useState<string>("");
   const [deleteDialog, setDeleteDialog] = useState(false);
-  const [deleteId, setDeleteId] = useState<number>(0);
+  const [rowId, setRowId] = useState<number>(0);
+
   const [pagination, setPagination] = useState({
     pageIndex: 0,
     pageSize: 10,
   });
 
-  const handleDelete = async (id: number) => {
-    await deleteOrmasData(id);
+  const handleEdit = async (id: number) => {
+    const result = await editDokumenOrmasData(id);
+    if (result) {
+      setEditJudulDokumen(result.judulDokumen);
+      setEditLinkDokumen(result.linkDokumen);
+      setEditDialog(true);
+    }
+  };
 
-    onDeleteData();
+  const handleUpdate = async (event: React.FormEvent, id: number) => {
+    event?.preventDefault();
+    const formData = new FormData();
+    formData.append("judulDokumen", editjudulDokumen ?? "");
+    formData.append("linkDokumen", editLinkDokumen ?? "");
+
+    try {
+      await updateDokumenOrmasData(formData, id);
+      setEditJudulDokumen("");
+      setEditLinkDokumen("");
+      onUpdateData();
+      setEditDialog(false);
+      console.log("update success");
+    } catch (error) {
+      console.error("Error inserting data:", error);
+    }
+  };
+
+  const handleDelete = async (id: number) => {
+    try {
+      await deleteDokumenOrmasData(id);
+      onDeleteData();
+      console.log("delete success");
+    } catch (error) {
+      console.log("Error deleting data:", error);
+    }
     setDeleteDialog(false);
   };
 
-  const columnHelper = createColumnHelper<OrmasRecord>();
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case "pengajuan":
+        return (
+          <MdOutlineError className="fill-yellow-500 dark:fill-yellow-400" />
+        );
+      case "diterima":
+        return <FaCheckCircle className="fill-green-500 dark:fill-green-400" />;
+      case "ditolak":
+        return <MdOutlineError className="fill-red-500 dark:fill-red-400" />;
+      case "tidak_aktif":
+        return (
+          <MdOutlineError className="fill-yellow-500 dark:fill-yellow-400" />
+        );
+      default:
+        return null;
+    }
+  };
+
+  const columnHelper = createColumnHelper<DokumenRecord>();
   const columns = [
-    columnHelper.accessor("namaOrmas", {
-      header: "Nama Ormas",
+    columnHelper.accessor("judulDokumen", {
+      header: "Judul Dokumen",
     }),
-    columnHelper.accessor("singkatanOrmas", {
-      header: "Nama Singkatan Ormas",
+    columnHelper.accessor("linkDokumen", {
+      header: "Link Dokumen",
+      cell: ({ row }) => (
+        <Button asChild variant="ghost" size="sm">
+          <a
+            href={row.original.linkDokumen}
+            target="_blank"
+            rel="external noopener noreferrer"
+          >
+            <IoDocumentTextSharp />
+            <span>Lihat Dokumen</span>
+          </a>
+        </Button>
+      ),
     }),
-    columnHelper.accessor("noTelpOrmas", {
-      header: "Nomor Telepon Ormas",
-    }),
-    columnHelper.accessor("alamatOrmas", {
-      header: "Alamat Ormas",
-    }),
-    columnHelper.accessor("statusOrmas", {
-      header: "Status",
+
+    columnHelper.accessor("statusDokumen", {
+      header: "Status Dokumen",
       cell: ({ row }) => (
         <Badge variant="outline" className=" px-1.5">
-          {row.original.statusOrmas === "Aktif" ? (
-            <FaCheckCircle className="fill-green-500 dark:fill-green-400" />
-          ) : (
-            <MdOutlineError className="fill-yellow-500 dark:fill-yellow-400" />
-          )}
-          {row.original.statusOrmas}
+          {getStatusIcon(row.original.statusDokumen)}
+
+          {row.original.statusDokumen}
         </Badge>
       ),
     }),
@@ -128,25 +199,28 @@ export default function DataTable({
                 <span className="sr-only">Open menu</span>
               </Button>
             </DropdownMenuTrigger>
+
             <DropdownMenuContent align="end" className="w-32">
-              <Link href={`/ormas/detail/${info.row.original.id}`}>
-                <DropdownMenuItem>Detail</DropdownMenuItem>
-              </Link>
-              <Link href={`/ormas/edit/${info.row.original.id}`}>
-                <DropdownMenuItem>Ubah</DropdownMenuItem>
-              </Link>
-              <DropdownMenuSeparator />
-              {/* DELETE BUTTON */}
-              <a
+              <DropdownMenuItem
                 onClick={() => {
-                  setDeleteDialog(true);
-                  setDeleteId(info.row.original.id);
+                  handleEdit(info.row.original.id);
+                  setRowId(info.row.original.id);
                 }}
               >
-                <DropdownMenuItem className="text-red-600 focus:bg-red-600 focus:text-white">
-                  Hapus
-                </DropdownMenuItem>
-              </a>
+                Ubah
+              </DropdownMenuItem>
+
+              <DropdownMenuSeparator />
+              {/* DELETE BUTTON */}
+              <DropdownMenuItem
+                onClick={() => {
+                  setDeleteDialog(true);
+                  setRowId(info.row.original.id);
+                }}
+                className="text-red-600 focus:bg-red-600 focus:text-white"
+              >
+                Hapus
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </>
@@ -157,10 +231,10 @@ export default function DataTable({
   const table = useReactTable({
     data,
     columns,
+    getCoreRowModel: getCoreRowModel(),
     state: {
       pagination,
     },
-    getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     onPaginationChange: setPagination,
   });
@@ -202,6 +276,7 @@ export default function DataTable({
             ))}
         </TableBody>
       </Table>
+
       <div className="flex items-center justify-between px-4">
         <div className="text-muted-foreground hidden flex-1 text-sm lg:flex">
           {table.getFilteredSelectedRowModel().rows.length} of{" "}
@@ -280,6 +355,39 @@ export default function DataTable({
         </div>
       </div>
 
+      {/* EDIT DIALOG */}
+      <Dialog open={editDialog} onOpenChange={setEditDialog}>
+        <DialogContent>
+          <form onSubmit={(e) => handleUpdate(e, rowId)}>
+            <DialogHeader>
+              <DialogTitle>Edit Dokumen</DialogTitle>
+            </DialogHeader>
+            <div className="grid gap-4 my-4">
+              <Label>Judul Dokumen</Label>
+              <Input
+                value={editjudulDokumen}
+                onChange={(e) => setEditJudulDokumen(e.target.value)}
+              />
+              <Label>Link Dokumen</Label>
+              <Input
+                value={editLinkDokumen}
+                onChange={(e) => setEditLinkDokumen(e.target.value)}
+              />
+            </div>
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button variant="outline">Batal</Button>
+              </DialogClose>
+              <DialogClose asChild>
+                <Button variant="outline" type="submit">
+                  Ubah
+                </Button>
+              </DialogClose>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
       {/* DELETE DIALOG */}
       <AlertDialog open={deleteDialog} onOpenChange={setDeleteDialog}>
         <AlertDialogContent>
@@ -295,7 +403,7 @@ export default function DataTable({
             <AlertDialogAction
               className="bg-red-600 text-white hover:bg-red-700 focus:ring-red-500"
               onClick={() => {
-                handleDelete(deleteId);
+                handleDelete(rowId);
               }}
             >
               Hapus
@@ -305,4 +413,4 @@ export default function DataTable({
       </AlertDialog>
     </>
   );
-}
+};
