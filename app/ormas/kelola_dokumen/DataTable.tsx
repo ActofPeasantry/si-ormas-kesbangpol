@@ -92,7 +92,9 @@ export const DataTable = ({
   });
 
   const [editDialog, setEditDialog] = useState(false);
-  const [editStatusDokumen, setEditStatusDokumen] = useState<string>("");
+  const [editStatusDokumen, setEditStatusDokumen] = useState<
+    string | undefined
+  >("");
   const [deleteDialog, setDeleteDialog] = useState(false);
   const [rowId, setRowId] = useState<number>(0);
 
@@ -105,7 +107,7 @@ export const DataTable = ({
   const handleUpdate = async (event: React.FormEvent, id: number) => {
     event?.preventDefault();
     const formData = new FormData();
-    formData.append("statusDokumen", editStatusDokumen);
+    formData.append("statusDokumen", editStatusDokumen || "");
 
     try {
       await updateDokumenOrmasStatus(id, formData);
