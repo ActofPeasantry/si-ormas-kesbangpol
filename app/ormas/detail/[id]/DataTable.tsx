@@ -89,8 +89,7 @@ export const DataTable = ({
   const [editjudulDokumen, setEditJudulDokumen] = useState<string>("");
   const [editLinkDokumen, setEditLinkDokumen] = useState<string>("");
   const [deleteDialog, setDeleteDialog] = useState(false);
-  const [deleteId, setDeleteId] = useState<number>(0);
-  const [editId, setEditId] = useState<number>(0);
+  const [rowId, setRowId] = useState<number>(0);
 
   const [pagination, setPagination] = useState({
     pageIndex: 0,
@@ -125,9 +124,13 @@ export const DataTable = ({
   };
 
   const handleDelete = async (id: number) => {
-    await deleteDokumenOrmasData(id);
-
-    onDeleteData();
+    try {
+      await deleteDokumenOrmasData(id);
+      onDeleteData();
+      console.log("delete success");
+    } catch (error) {
+      console.log("Error deleting data:", error);
+    }
     setDeleteDialog(false);
   };
 
@@ -201,7 +204,7 @@ export const DataTable = ({
               <DropdownMenuItem
                 onClick={() => {
                   handleEdit(info.row.original.id);
-                  setEditId(info.row.original.id);
+                  setRowId(info.row.original.id);
                 }}
               >
                 Ubah
@@ -212,7 +215,7 @@ export const DataTable = ({
               <DropdownMenuItem
                 onClick={() => {
                   setDeleteDialog(true);
-                  setDeleteId(info.row.original.id);
+                  setRowId(info.row.original.id);
                 }}
                 className="text-red-600 focus:bg-red-600 focus:text-white"
               >
@@ -355,7 +358,7 @@ export const DataTable = ({
       {/* EDIT DIALOG */}
       <Dialog open={editDialog} onOpenChange={setEditDialog}>
         <DialogContent>
-          <form onSubmit={(e) => handleUpdate(e, editId)}>
+          <form onSubmit={(e) => handleUpdate(e, rowId)}>
             <DialogHeader>
               <DialogTitle>Edit Dokumen</DialogTitle>
             </DialogHeader>
@@ -400,7 +403,7 @@ export const DataTable = ({
             <AlertDialogAction
               className="bg-red-600 text-white hover:bg-red-700 focus:ring-red-500"
               onClick={() => {
-                handleDelete(deleteId);
+                handleDelete(rowId);
               }}
             >
               Hapus

@@ -296,18 +296,24 @@ export default function Page() {
                         <DataTable
                           data={data?.acceptedRecords || []}
                           loading={isLoading || refreshData.isPending}
+                          onDeleteData={refreshData.mutate}
+                          onUpdateData={refreshData.mutate}
                         />
                       </TabsContent>
                       <TabsContent value="ditolak">
                         <DataTable
                           data={data?.rejectedRecords || []}
                           loading={isLoading || refreshData.isPending}
+                          onDeleteData={refreshData.mutate}
+                          onUpdateData={refreshData.mutate}
                         />
                       </TabsContent>
                       <TabsContent value="seluruhDokumen">
                         <DataTable
                           data={data?.allRecords || []}
                           loading={isLoading || refreshData.isPending}
+                          onDeleteData={refreshData.mutate}
+                          onUpdateData={refreshData.mutate}
                         />
                       </TabsContent>
                     </Tabs>

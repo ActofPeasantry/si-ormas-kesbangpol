@@ -8,21 +8,25 @@ import {
 } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 
-export async function getAllDokumenOrmasDataWithNamaOrmas() {
-  return await db
-    .select({
-      namaOrmas: OrmasTable.namaOrmas,
-      id: DokumenOrmasTable.id,
-      judulDokumen: DokumenOrmasTable.judulDokumen,
-      linkDokumen: DokumenOrmasTable.linkDokumen,
-      statusDokumen: DokumenOrmasTable.statusDokumen,
-    })
-    .from(DokumenOrmasTable)
-    .leftJoin(
-      DetailOrmasTable,
-      eq(DokumenOrmasTable.detailOrmasId, DetailOrmasTable.id)
-    )
-    .leftJoin(OrmasTable, eq(OrmasTable.id, DetailOrmasTable.OrmasId));
+export async function acceptDokumenOrmas(id: number) {
+  try {
+    await db
+      .update(DokumenOrmasTable)
+      .set({ statusDokumen: "diterima", updatedAt: new Date() })
+      .where(eq(DokumenOrmasTable.id, id));
+  } catch (error) {
+    console.error("Error inserting data:", error);
+  }
+}
+export async function refuseDokumenOrmas(id: number) {
+  try {
+    await db
+      .update(DokumenOrmasTable)
+      .set({ statusDokumen: "ditolak", updatedAt: new Date() })
+      .where(eq(DokumenOrmasTable.id, id));
+  } catch (error) {
+    console.error("Error inserting data:", error);
+  }
 }
 
 export async function getSubmittedDokumenOrmasDataWithNamaOrmas() {
@@ -105,32 +109,12 @@ export async function addDokumenOrmasData(formData: FormData, id: number) {
   }
 }
 
-export async function acceptDokumenOrmas(id: number) {
-  try {
-    await db
-      .update(DokumenOrmasTable)
-      .set({ statusDokumen: "diterima", updatedAt: new Date() })
-      .where(eq(DokumenOrmasTable.id, id));
-  } catch (error) {
-    console.error("Error inserting data:", error);
-  }
-}
-export async function refuseDokumenOrmas(id: number) {
-  try {
-    await db
-      .update(DokumenOrmasTable)
-      .set({ statusDokumen: "ditolak", updatedAt: new Date() })
-      .where(eq(DokumenOrmasTable.id, id));
-  } catch (error) {
-    console.error("Error inserting data:", error);
-  }
-}
-
 export async function editDokumenOrmasData(id: number) {
   const result = await db
     .select({
       judulDokumen: DokumenOrmasTable.judulDokumen,
       linkDokumen: DokumenOrmasTable.linkDokumen,
+      statusDokumen: DokumenOrmasTable.statusDokumen,
     })
     .from(DokumenOrmasTable)
     .where(eq(DokumenOrmasTable.id, id));
@@ -144,6 +128,25 @@ export async function updateDokumenOrmasData(formData: FormData, id: number) {
     await db
       .update(DokumenOrmasTable)
       .set({ judulDokumen, linkDokumen, statusDokumen: "pengajuan" })
+      .where(eq(DokumenOrmasTable.id, id));
+  } catch (error) {
+    console.error("Error inserting data:", error);
+  }
+}
+
+export async function updateDokumenOrmasStatus(id: number, formData: FormData) {
+  const statusDokumen = formData.get("statusDokumen") as
+    | "pengajuan"
+    | "diterima"
+    | "ditolak"
+    | "tidak ada";
+  try {
+    await db
+      .update(DokumenOrmasTable)
+      .set({
+        statusDokumen,
+        updatedAt: new Date(),
+      })
       .where(eq(DokumenOrmasTable.id, id));
   } catch (error) {
     console.error("Error inserting data:", error);
