@@ -145,7 +145,6 @@ export async function updateDokumenOrmasStatus(id: number, formData: FormData) {
       .update(DokumenOrmasTable)
       .set({
         statusDokumen,
-        updatedAt: new Date(),
       })
       .where(eq(DokumenOrmasTable.id, id));
   } catch (error) {

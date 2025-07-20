@@ -1,8 +1,9 @@
 import "dotenv/config";
-import { drizzle } from "drizzle-orm/mysql2";
 import mysql from "mysql2/promise";
+import { drizzle } from "drizzle-orm/mysql2";
+// import * as schema from "./schema";
 
-const poolConnection = await mysql.createPool({
+const connection = await mysql.createConnection({
   host: process.env.DB_HOST!,
   port: parseInt(process.env.DB_PORT!),
   user: process.env.DB_USER!,
@@ -10,4 +11,4 @@ const poolConnection = await mysql.createPool({
   password: process.env.DB_PASSWORD!,
 });
 
-export const db = drizzle(poolConnection);
+export const db = drizzle({ client: connection });

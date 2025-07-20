@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { FaCheckCircle } from "react-icons/fa";
 import { MdOutlineError } from "react-icons/md";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -51,6 +52,7 @@ import {
   flexRender,
   getCoreRowModel,
   getPaginationRowModel,
+  getFilteredRowModel,
 } from "@tanstack/react-table";
 import { activateOrmas, deleteOrmasData } from "@/lib/queries/ormas";
 
@@ -82,6 +84,10 @@ export const DataTable = ({
     pageIndex: 0,
     pageSize: 10,
   });
+
+  const [columnFilters, setColumnFilters] = useState<
+    { id: string; value: string }[]
+  >([{ id: "namaOrmas", value: "" }]);
 
   const handleActivation = async (id: number) => {
     try {
@@ -183,14 +189,30 @@ export const DataTable = ({
     columns,
     state: {
       pagination,
+      columnFilters,
     },
     getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     onPaginationChange: setPagination,
   });
 
   return (
     <>
+      <div className="px-2 grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:mb-0">
+        <div>
+          <Input
+            className="h-7"
+            type="text"
+            placeholder="Cari Nama Ormas"
+            value={columnFilters[0].value}
+            onChange={(e) =>
+              setColumnFilters([{ id: "namaOrmas", value: e.target.value }])
+            }
+          />
+        </div>
+      </div>
+
       <Table>
         {loading ? (
           <TableCaption>Mohon Tunggu...</TableCaption>

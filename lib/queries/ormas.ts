@@ -62,7 +62,12 @@ export async function addOrmasData(formData: FormData) {
     // Insert user
     const userResult = await db
       .insert(UsersTable)
-      .values({ username, email, password, role: "akun ormas" })
+      .values({
+        username,
+        email,
+        password,
+        role: "ormas",
+      })
       .$returningId();
 
     const userId = userResult[0].id;
