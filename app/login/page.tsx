@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { login } from "@/app/login/action";
+import { login } from "@/lib/auth/action";
 import { IconBrandGoogleFilled } from "@tabler/icons-react";
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
