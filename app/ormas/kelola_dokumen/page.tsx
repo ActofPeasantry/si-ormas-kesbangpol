@@ -1,4 +1,5 @@
 "use client";
+import { z } from "zod";
 import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AppSidebar } from "@/components/app-sidebar";
@@ -38,19 +39,20 @@ import {
   refuseDokumenOrmas,
 } from "@/lib/queries/dokumenOrmas";
 
-type DokumenRecord = {
-  id: number;
-  namaOrmas: string | null;
-  judulDokumen: string;
-  linkDokumen: string;
-  statusDokumen: string;
-};
+export const OrmasSchema = z.object({
+  id: z.number(),
+  namaOrmas: z.string().nullable(),
+  judulDokumen: z.string(),
+  linkDokumen: z.string(),
+  statusDokumen: z.string(),
+});
 
+type OrmasData = z.infer<typeof OrmasSchema>;
 type DokumenData = {
-  submittedRecords: DokumenRecord[];
-  acceptedRecords: DokumenRecord[];
-  rejectedRecords: DokumenRecord[];
-  allRecords: DokumenRecord[];
+  submittedRecords: OrmasData[];
+  acceptedRecords: OrmasData[];
+  rejectedRecords: OrmasData[];
+  allRecords: OrmasData[];
 };
 
 const breadcrumb = [

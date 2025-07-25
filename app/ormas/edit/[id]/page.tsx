@@ -1,4 +1,5 @@
 "use client";
+import { z } from "zod";
 import { use, useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
@@ -17,21 +18,23 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { editOrmasData, updateOrmasData } from "@/lib/queries/ormas";
 
-type OrmasRecord = {
-  id: number;
-  namaOrmas: string | null;
-  singkatanOrmas: string | null;
-  namaKetuaOrmas: string | null;
-  namaSekretarisOrmas: string | null;
-  alamatOrmas: string | null;
-  noTelpOrmas: string | null;
-  skBadanHukum: string | null;
-  skKeperguruan: string | null;
-  adArt: string | null;
-};
-type OrmasData = {
-  records: OrmasRecord[];
-};
+export const OrmasSchema = z.object({
+  id: z.number(),
+  namaOrmas: z.string().nullable(),
+  singkatanOrmas: z.string().nullable(),
+  namaKetuaOrmas: z.string().nullable(),
+  namaSekretarisOrmas: z.string().nullable(),
+  alamatOrmas: z.string().nullable(),
+  noTelpOrmas: z.string().nullable(),
+  skBadanHukum: z.string().nullable(),
+  skKeperguruan: z.string().nullable(),
+  adArt: z.string().nullable(),
+});
+
+export const OrmasDataSchema = z.object({
+  records: z.array(OrmasSchema),
+});
+type OrmasData = z.infer<typeof OrmasDataSchema>;
 
 const breadcrumb = [
   {
@@ -62,8 +65,9 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
     enabled: !!numericId,
   });
 
-  const [formState, setFormState] = useState<OrmasRecord | null>(null);
-
+  const [formState, setFormState] = useState<OrmasData["records"][0] | null>(
+    null
+  );
   useEffect(() => {
     if (data?.records?.[0]) {
       setFormState(data.records[0]);

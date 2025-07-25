@@ -1,5 +1,5 @@
 "use client";
-
+import { z } from "zod";
 import { AppSidebar } from "@/components/app-sidebar";
 import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
@@ -8,18 +8,19 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { DataTable } from "@/app/ormas/DataTable";
 import { getOrmasData } from "@/lib/queries/ormas";
 
-type OrmasRecord = {
-  id: number;
-  namaOrmas: string;
-  singkatanOrmas: string;
-  alamatOrmas: string | null;
-  noTelpOrmas: string | null;
-  statusOrmas: string;
-};
+export const OrmasSchema = z.object({
+  id: z.number(),
+  namaOrmas: z.string(),
+  singkatanOrmas: z.string(),
+  alamatOrmas: z.string().nullable(),
+  noTelpOrmas: z.string().nullable(),
+  statusOrmas: z.string(),
+});
 
-type OrmasData = {
-  records: OrmasRecord[];
-};
+export const OrmasDataSchema = z.object({
+  records: z.array(OrmasSchema),
+});
+type OrmasData = z.infer<typeof OrmasDataSchema>;
 
 const breadcrumb = [
   {

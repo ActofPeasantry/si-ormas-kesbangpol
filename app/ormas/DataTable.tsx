@@ -1,3 +1,4 @@
+import { z } from "zod";
 import { useState } from "react";
 import Link from "next/link";
 import {
@@ -56,17 +57,18 @@ import {
 } from "@tanstack/react-table";
 import { activateOrmas, deleteOrmasData } from "@/lib/queries/ormas";
 
-type OrmasRecord = {
-  id: number;
-  namaOrmas: string;
-  singkatanOrmas: string;
-  alamatOrmas: string | null;
-  noTelpOrmas: string | null;
-  statusOrmas: string;
-};
+export const OrmasSchema = z.object({
+  id: z.number(),
+  namaOrmas: z.string(),
+  singkatanOrmas: z.string(),
+  alamatOrmas: z.string().nullable(),
+  noTelpOrmas: z.string().nullable(),
+  statusOrmas: z.string(),
+});
+type OrmasData = z.infer<typeof OrmasSchema>;
 
 interface DataTableProps {
-  data: OrmasRecord[];
+  data: OrmasData[];
   loading: boolean;
   onDeleteData: () => void;
   onUpdateData: () => void;
@@ -106,7 +108,7 @@ export const DataTable = ({
     setDeleteDialog(false);
   };
 
-  const columnHelper = createColumnHelper<OrmasRecord>();
+  const columnHelper = createColumnHelper<OrmasData>();
   const columns = [
     columnHelper.accessor("namaOrmas", {
       header: "Nama Ormas",

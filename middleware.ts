@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { decrypt } from "@/lib/auth/session";
 
 // Static route prefixes
-const protectedRoutes = ["/", "/ormas", "/ormas/detail"];
+const protectedRoutes = ["/", "/ormas"];
 const publicRoutes = ["/login", "/register"];
 
 export default async function middleware(req: NextRequest) {

@@ -1,4 +1,5 @@
 "use client";
+import { z } from "zod";
 import { use, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AppSidebar } from "@/components/app-sidebar";
@@ -33,26 +34,28 @@ import { getOrmasDetail } from "@/lib/queries/ormas";
 import { getDokumenOrmasData } from "@/lib/queries/dokumenOrmas";
 import { addDokumenOrmasData } from "@/lib/queries/dokumenOrmas";
 
-type OrmasRecord = {
-  id: number;
-  statusOrmas: string | null;
-  namaOrmas: string | null;
-  singkatanOrmas: string | null;
-  namaKetuaOrmas: string | null;
-  namaSekretarisOrmas: string | null;
-  alamatOrmas: string | null;
-  noTelpOrmas: string | null;
-  skBadanHukum: string | null;
-  skKeperguruan: string | null;
-  adArt: string | null;
-};
+export const OrmasSchema = z.object({
+  id: z.number(),
+  statusOrmas: z.string().nullable(),
+  namaOrmas: z.string().nullable(),
+  singkatanOrmas: z.string().nullable(),
+  namaKetuaOrmas: z.string().nullable(),
+  namaSekretarisOrmas: z.string().nullable(),
+  alamatOrmas: z.string().nullable(),
+  noTelpOrmas: z.string().nullable(),
+  skBadanHukum: z.string().nullable(),
+  skKeperguruan: z.string().nullable(),
+  adArt: z.string().nullable(),
+});
+type OrmasRecord = z.infer<typeof OrmasSchema>;
 
-type DokumenRecord = {
-  id: number;
-  judulDokumen: string;
-  linkDokumen: string;
-  statusDokumen: string;
-};
+export const DokumenSchema = z.object({
+  id: z.number(),
+  judulDokumen: z.string(),
+  linkDokumen: z.string(),
+  statusDokumen: z.string(),
+});
+type DokumenRecord = z.infer<typeof DokumenSchema>;
 
 type OrmasData = {
   ormasRecords: OrmasRecord[];
