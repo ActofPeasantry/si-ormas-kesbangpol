@@ -3,12 +3,13 @@
 import { z } from "zod";
 import { createSession, deleteSession } from "@/lib/auth/session";
 import { redirect } from "next/navigation";
-
-const testUser = {
-  id: "1",
-  email: "contact@cosdensolutions.io",
-  password: "12345678",
-};
+import { findUser } from "../queries/user";
+import { decrypt } from "@/lib/crypto";
+// const testUser = {
+//   id: "1",
+//   email: "contact@cosdensolutions.io",
+//   password: "12345678",
+// };
 
 const loginSchema = z.object({
   email: z.string().email({ message: "Invalid email address" }).trim(),
@@ -35,7 +36,10 @@ export async function login(
   }
 
   const { email, password } = result.data;
-  if (email !== testUser.email || password !== testUser.password) {
+  const user = await findUser(email);
+  const decryptedPassword = await decrypt(user.password);
+
+  if (email !== user.email || password !== decryptedPassword) {
     return {
       errors: {
         email: ["Invalid email or password"],
@@ -43,7 +47,7 @@ export async function login(
     };
   }
 
-  await createSession(testUser.id);
+  await createSession(user.id.toString());
   redirect("/");
 }
 

@@ -15,7 +15,7 @@ export async function encrypt(text: string) {
 
 export async function decrypt(text: string) {
   const { createDecipheriv } = crypto;
-  const key = process.env.ENCRYPTION_KEY!;
+  const key = process.env.ENCRYPT_SECRET!;
   const [ivHex, encryptedText] = text.split(":"); // Split the IV and encrypted data
   const iv = Buffer.from(ivHex, "hex");
 
