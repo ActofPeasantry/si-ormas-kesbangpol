@@ -1,3 +1,4 @@
+import { z } from "zod";
 import { useState } from "react";
 import {
   DropdownMenu,
@@ -67,12 +68,13 @@ import {
   updateDokumenOrmasData,
 } from "@/lib/queries/dokumenOrmas";
 
-type DokumenRecord = {
-  id: number;
-  judulDokumen: string;
-  linkDokumen: string;
-  statusDokumen: string;
-};
+export const DokumenSchema = z.object({
+  id: z.number(),
+  judulDokumen: z.string(),
+  linkDokumen: z.string(),
+  statusDokumen: z.string(),
+});
+type DokumenRecord = z.infer<typeof DokumenSchema>;
 
 export const DataTable = ({
   data,

@@ -13,11 +13,11 @@ export const UsersTable = mysqlTable("users", {
   username: varchar("username", { length: 255 }).notNull(),
   email: varchar("email", { length: 255 }).notNull(),
   password: varchar("password", { length: 255 }).notNull(),
-  role: mysqlEnum("role", ["admin", "akun ormas"])
-    .notNull()
-    .default("akun ormas"),
+  role: mysqlEnum("role", ["admin", "ormas"]).notNull().default("ormas"),
   createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
+  updatedAt: timestamp("updated_at")
+    .defaultNow()
+    .$onUpdate(() => new Date()),
   deletedAt: date("deleted_at"),
 });
 

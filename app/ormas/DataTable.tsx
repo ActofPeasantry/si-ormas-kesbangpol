@@ -1,3 +1,4 @@
+import { z } from "zod";
 import { useState } from "react";
 import Link from "next/link";
 import {
@@ -11,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { FaCheckCircle } from "react-icons/fa";
 import { MdOutlineError } from "react-icons/md";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -51,20 +53,22 @@ import {
   flexRender,
   getCoreRowModel,
   getPaginationRowModel,
+  getFilteredRowModel,
 } from "@tanstack/react-table";
 import { activateOrmas, deleteOrmasData } from "@/lib/queries/ormas";
 
-type OrmasRecord = {
-  id: number;
-  namaOrmas: string;
-  singkatanOrmas: string;
-  alamatOrmas: string | null;
-  noTelpOrmas: string | null;
-  statusOrmas: string;
-};
+export const OrmasSchema = z.object({
+  id: z.number(),
+  namaOrmas: z.string(),
+  singkatanOrmas: z.string(),
+  alamatOrmas: z.string().nullable(),
+  noTelpOrmas: z.string().nullable(),
+  statusOrmas: z.string(),
+});
+type OrmasData = z.infer<typeof OrmasSchema>;
 
 interface DataTableProps {
-  data: OrmasRecord[];
+  data: OrmasData[];
   loading: boolean;
   onDeleteData: () => void;
   onUpdateData: () => void;
@@ -83,6 +87,10 @@ export const DataTable = ({
     pageSize: 10,
   });
 
+  const [columnFilters, setColumnFilters] = useState<
+    { id: string; value: string }[]
+  >([{ id: "namaOrmas", value: "" }]);
+
   const handleActivation = async (id: number) => {
     try {
       await activateOrmas(id);
@@ -100,7 +108,7 @@ export const DataTable = ({
     setDeleteDialog(false);
   };
 
-  const columnHelper = createColumnHelper<OrmasRecord>();
+  const columnHelper = createColumnHelper<OrmasData>();
   const columns = [
     columnHelper.accessor("namaOrmas", {
       header: "Nama Ormas",
@@ -183,14 +191,30 @@ export const DataTable = ({
     columns,
     state: {
       pagination,
+      columnFilters,
     },
     getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     onPaginationChange: setPagination,
   });
 
   return (
     <>
+      <div className="px-2 grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:mb-0">
+        <div>
+          <Input
+            className="h-7"
+            type="text"
+            placeholder="Cari Nama Ormas"
+            value={columnFilters[0].value}
+            onChange={(e) =>
+              setColumnFilters([{ id: "namaOrmas", value: e.target.value }])
+            }
+          />
+        </div>
+      </div>
+
       <Table>
         {loading ? (
           <TableCaption>Mohon Tunggu...</TableCaption>
