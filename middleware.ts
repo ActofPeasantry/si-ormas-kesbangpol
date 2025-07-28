@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
-import { decrypt } from "@/lib/auth/session";
+import { decryptSession } from "@/lib/auth/session";
 
 // Static route prefixes
 const protectedRoutes = ["/", "/ormas"];
@@ -9,7 +9,7 @@ const publicRoutes = ["/login", "/register"];
 export default async function middleware(req: NextRequest) {
   const path = req.nextUrl.pathname;
   const cookieStore = await cookies();
-  const session = await decrypt(cookieStore.get("session")?.value);
+  const session = await decryptSession(cookieStore.get("session")?.value);
 
   const isProtectedRoute = protectedRoutes.some(
     (route) => path === route || path.startsWith(route + "/")

@@ -1,10 +1,16 @@
 "use server";
 
 import { z } from "zod";
-import { createSession, deleteSession } from "@/lib/auth/session";
+import {
+  createSession,
+  decryptSession,
+  deleteSession,
+} from "@/lib/auth/session";
 import { redirect } from "next/navigation";
-import { findUser } from "../queries/user";
+import { checkLoginUser, findUser } from "../queries/user";
 import { decrypt } from "@/lib/crypto";
+import { cookies } from "next/headers";
+
 // const testUser = {
 //   id: "1",
 //   email: "contact@cosdensolutions.io",
@@ -36,7 +42,7 @@ export async function login(
   }
 
   const { email, password } = result.data;
-  const user = await findUser(email);
+  const user = await checkLoginUser(email);
   const decryptedPassword = await decrypt(user.password);
 
   if (email !== user.email || password !== decryptedPassword) {
@@ -47,11 +53,22 @@ export async function login(
     };
   }
 
-  await createSession(user.id.toString());
+  await createSession(user.id);
   redirect("/");
 }
 
 export async function logout() {
   await deleteSession();
   redirect("/login");
+}
+
+export async function getCurrentUser() {
+  const cookieStore = await cookies();
+  const session = await decryptSession(cookieStore.get("session")?.value);
+  if (!session) return null;
+
+  const user = await findUser(session.userId);
+  if (!user) return null;
+
+  return user;
 }

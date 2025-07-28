@@ -1,0 +1,243 @@
+"use client";
+import { z } from "zod";
+import { useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  Card,
+  CardDescription,
+  CardTitle,
+  CardHeader,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/card";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { FaCheckCircle } from "react-icons/fa";
+import { MdOutlineError } from "react-icons/md";
+import { DataTable } from "@/app/ormas/detail/[id]/DataTable";
+import { getOrmasDetail } from "@/lib/queries/ormas";
+import { getDokumenOrmasData } from "@/lib/queries/dokumenOrmas";
+import { addDokumenOrmasData } from "@/lib/queries/dokumenOrmas";
+
+export const OrmasSchema = z.object({
+  id: z.number(),
+  statusOrmas: z.string().nullable(),
+  namaOrmas: z.string().nullable(),
+  singkatanOrmas: z.string().nullable(),
+  namaKetuaOrmas: z.string().nullable(),
+  namaSekretarisOrmas: z.string().nullable(),
+  alamatOrmas: z.string().nullable(),
+  noTelpOrmas: z.string().nullable(),
+  skBadanHukum: z.string().nullable(),
+  skKeperguruan: z.string().nullable(),
+  adArt: z.string().nullable(),
+});
+type OrmasRecord = z.infer<typeof OrmasSchema>;
+
+export const DokumenSchema = z.object({
+  id: z.number(),
+  judulDokumen: z.string(),
+  linkDokumen: z.string(),
+  statusDokumen: z.string(),
+});
+type DokumenRecord = z.infer<typeof DokumenSchema>;
+
+type OrmasData = {
+  ormasRecords: OrmasRecord[];
+  dokumenRecords: DokumenRecord[];
+};
+
+export const FormCard = ({ numericId }: { numericId: number }) => {
+  const queryClient = useQueryClient();
+  const { data, isLoading, error } = useQuery<OrmasData>({
+    queryKey: ["ormasRecords", numericId],
+    queryFn: async () => {
+      const ormasRecords = await getOrmasDetail(numericId);
+      const dokumenRecords = await getDokumenOrmasData(numericId);
+      return { ormasRecords, dokumenRecords };
+    },
+    enabled: !!numericId,
+  });
+
+  const refreshData = useMutation({
+    mutationFn: async () => {
+      const ormasRecords = await getOrmasDetail(numericId);
+      const dokumenRecords = await getDokumenOrmasData(numericId);
+      return { ormasRecords, dokumenRecords };
+    },
+    onSuccess: (data) => {
+      queryClient.setQueryData(["ormasRecords", numericId], data);
+    },
+  });
+
+  const [judulDokumen, setJudulDokumen] = useState<string>("");
+  const [linkDokumen, setLinkDokumen] = useState<string>("");
+  const handleAddDokumen = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    const formData = new FormData();
+    formData.append("judulDokumen", judulDokumen ?? "");
+    formData.append("linkDokumen", linkDokumen ?? "");
+
+    try {
+      await addDokumenOrmasData(formData, numericId);
+      setLinkDokumen("");
+      setJudulDokumen("");
+      refreshData.mutate();
+      console.log("submit success");
+    } catch (error) {
+      console.error("Error inserting data:", error);
+    }
+  };
+
+  // const ormas = await getOrmasDetail(id);
+  if (isLoading || !data?.ormasRecords?.[0]) {
+    return <div>Loading...</div>;
+  }
+  if (error || !data) return <div>Error loading data.</div>;
+  return (
+    <div className="flex flex-1 flex-col">
+      <div className="@container/main flex flex-1 flex-col gap-2">
+        <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
+          <div className="px-4 lg:px-6">
+            <Card className="@container/card">
+              <CardHeader>
+                <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+                  {data.ormasRecords[0].namaOrmas}
+                </CardTitle>
+                <CardDescription>
+                  {data.ormasRecords[0].singkatanOrmas}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="p-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-1 mb-3 lg:mb-0">
+                  <div className="flex flex-col gap-1">
+                    <span className="font-semibold">Status</span>
+                    <span>
+                      <Badge variant="outline" className=" px-1.5">
+                        {data.ormasRecords[0].statusOrmas === "Aktif" ? (
+                          <FaCheckCircle className="fill-green-500 dark:fill-green-400" />
+                        ) : (
+                          <MdOutlineError className="fill-yellow-500 dark:fill-yellow-400" />
+                        )}
+                        {data.ormasRecords[0].statusOrmas}
+                      </Badge>
+                    </span>
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <span className="font-semibold">Alamat Ormas</span>
+                    <span>{data.ormasRecords[0].alamatOrmas}</span>
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <span className="font-semibold">No. telepon Ormas</span>
+                    <span>{data.ormasRecords[0].noTelpOrmas}</span>
+                  </div>
+                </div>
+                <div className="p-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-1 mb-1 lg:mb-0">
+                  <div className="flex flex-col gap-1">
+                    <span className="font-semibold">Nama Ketua Ormas</span>
+                    <span>{data.ormasRecords[0].namaKetuaOrmas}</span>
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <span className="font-semibold">SK Badan Keperguruan</span>
+                    <span>{data.ormasRecords[0].namaSekretarisOrmas}</span>
+                  </div>
+                </div>
+                <div className="p-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-1 mb-1 lg:mb-0">
+                  <div className="flex flex-col gap-1">
+                    <span className="font-semibold">Nama Sekretaris Ormas</span>
+                    <span>{data.ormasRecords[0].skBadanHukum}</span>
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <span className="font-semibold">SK Badan Keperguruan</span>
+                    <span>{data.ormasRecords[0].skKeperguruan}</span>
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <span className="font-semibold">AD/ART</span>
+                    <span>{data.ormasRecords[0].adArt}</span>
+                  </div>
+                </div>
+                <h1>Dokumen Ormas</h1>
+                {/* Dialog Tambah Dokumen */}
+                <div className="my-4">
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button variant="outline">Tambah Dokumen</Button>
+                    </DialogTrigger>
+
+                    <DialogContent className="sm:max-w-[425px]">
+                      <form onSubmit={handleAddDokumen}>
+                        <div className="mb-4">
+                          <DialogHeader>
+                            <DialogTitle>Tambah Dokumen</DialogTitle>
+                            <DialogDescription></DialogDescription>
+                          </DialogHeader>
+                        </div>
+                        <div className="grid gap-4">
+                          <div className="grid gap-3">
+                            <Label htmlFor="name-1">Judul Dokumen</Label>
+                            <Input
+                              id="name-1"
+                              name="judulDokumen"
+                              value={judulDokumen}
+                              onChange={(e) => setJudulDokumen(e.target.value)}
+                              required
+                            />
+                          </div>
+                          <div className="grid gap-3">
+                            <Label htmlFor="name-1">Link Dokumen</Label>
+                            <Input
+                              id="name-1"
+                              name="linkDokumen"
+                              value={linkDokumen}
+                              onChange={(e) => setLinkDokumen(e.target.value)}
+                              required
+                            />
+                          </div>
+                        </div>
+                        <DialogFooter className="mt-3">
+                          <DialogClose asChild>
+                            <Button variant="outline" type="button">
+                              Cancel
+                            </Button>
+                          </DialogClose>
+                          <DialogClose asChild>
+                            <Button variant="outline" type="submit">
+                              Tambah
+                            </Button>
+                          </DialogClose>
+                        </DialogFooter>
+                      </form>
+                    </DialogContent>
+                  </Dialog>
+                </div>
+                {/* Table */}
+                <div className="my-4">
+                  <DataTable
+                    data={data.dokumenRecords}
+                    loading={isLoading || refreshData.isPending}
+                    onUpdateData={refreshData.mutate}
+                    onDeleteData={refreshData.mutate}
+                  />
+                </div>
+              </CardContent>
+              <CardFooter className="flex-col items-start gap-1.5 text-sm"></CardFooter>
+            </Card>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
