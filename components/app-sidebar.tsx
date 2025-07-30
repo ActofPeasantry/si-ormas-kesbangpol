@@ -55,8 +55,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           },
           {
             title: "Kelola Dokumen Ormas",
-            url: "/ormas/kelola_dokumen",
-            isActive: pathname === "/ormas/kelola_dokumen",
+            url: "/ormas/kelola-dokumen",
+            isActive: pathname === "/ormas/kelola-dokumen",
           },
           {
             title: "Registrasi Ormas",

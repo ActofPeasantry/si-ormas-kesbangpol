@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { login } from "@/lib/auth/action";
 import { IconBrandGoogleFilled } from "@tabler/icons-react";
+import Link from "next/link";
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 
@@ -46,12 +47,12 @@ export default function Page() {
                   <div className="grid gap-3">
                     <div className="flex items-center">
                       <Label htmlFor="password">Password</Label>
-                      <a
-                        href="#"
+                      <Link
+                        href="/lupa-password"
                         className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
                       >
-                        Forgot your password?
-                      </a>
+                        Lupa password?
+                      </Link>
                     </div>
                     <Input id="password" name="password" type="password" />
                     {state?.errors.password && (

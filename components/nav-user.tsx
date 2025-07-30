@@ -24,6 +24,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { logout } from "@/lib/auth/action";
+import Link from "next/link";
 
 export function NavUser({
   user,
@@ -81,10 +82,12 @@ export function NavUser({
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <IconUserCircle />
-                Profile
-              </DropdownMenuItem>
+              <Link href={"/profile"}>
+                <DropdownMenuItem>
+                  <IconUserCircle />
+                  Profile
+                </DropdownMenuItem>
+              </Link>
               <DropdownMenuItem>
                 <IconSettings />
                 Setting
