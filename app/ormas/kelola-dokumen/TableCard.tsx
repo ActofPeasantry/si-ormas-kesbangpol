@@ -1,9 +1,9 @@
 "use client";
 import { z } from "zod";
 import { useEffect, useState } from "react";
+import { DataTable } from "./DataTable";
+import { SubmittedDataTable } from "./SubmittedDataTable";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { DataTable } from "@/app/ormas/kelola-dokumen/DataTable";
-import { SubmittedDataTable } from "@/app/ormas/kelola-dokumen/SubmittedDataTable";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import {

@@ -82,6 +82,50 @@ export async function getRejectedDokumenOrmasDataWithNamaOrmas() {
     .where(eq(DokumenOrmasTable.statusDokumen, "ditolak"));
 }
 
+export async function getSubmittedDokumenOrmasData(id: number) {
+  return await db
+    .select({
+      id: DokumenOrmasTable.id,
+      judulDokumen: DokumenOrmasTable.judulDokumen,
+      linkDokumen: DokumenOrmasTable.linkDokumen,
+      statusDokumen: DokumenOrmasTable.statusDokumen,
+    })
+    .from(DokumenOrmasTable)
+    .where(
+      eq(DokumenOrmasTable.detailOrmasId, id) &&
+        eq(DokumenOrmasTable.statusDokumen, "pengajuan")
+    );
+}
+export async function getAcceptedDokumenOrmasData(id: number) {
+  return await db
+    .select({
+      id: DokumenOrmasTable.id,
+      judulDokumen: DokumenOrmasTable.judulDokumen,
+      linkDokumen: DokumenOrmasTable.linkDokumen,
+      statusDokumen: DokumenOrmasTable.statusDokumen,
+    })
+    .from(DokumenOrmasTable)
+    .where(
+      eq(DokumenOrmasTable.detailOrmasId, id) &&
+        eq(DokumenOrmasTable.statusDokumen, "diterima")
+    );
+}
+
+export async function getRejectedDokumenOrmasData(id: number) {
+  return await db
+    .select({
+      id: DokumenOrmasTable.id,
+      judulDokumen: DokumenOrmasTable.judulDokumen,
+      linkDokumen: DokumenOrmasTable.linkDokumen,
+      statusDokumen: DokumenOrmasTable.statusDokumen,
+    })
+    .from(DokumenOrmasTable)
+    .where(
+      eq(DokumenOrmasTable.detailOrmasId, id) &&
+        eq(DokumenOrmasTable.statusDokumen, "ditolak")
+    );
+}
+
 export async function getDokumenOrmasData(id: number) {
   return await db
     .select({

@@ -72,7 +72,7 @@ export const DokumenSchema = z.object({
   id: z.number(),
   judulDokumen: z.string(),
   linkDokumen: z.string(),
-  statusDokumen: z.string(),
+  statusDokumen: z.enum(["pengajuan", "ditolak", "diterima", "tidak ada"]),
 });
 type DokumenRecord = z.infer<typeof DokumenSchema>;
 
