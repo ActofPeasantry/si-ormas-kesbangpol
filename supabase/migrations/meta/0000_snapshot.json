@@ -1,76 +1,80 @@
 {
-  "version": "5",
-  "dialect": "mysql",
-  "id": "493dfe8d-4c67-473d-ad1d-6f2572b48939",
-  "prevId": "ecf841c9-0f13-4bb9-a050-44c092e0fe57",
+  "id": "99820445-dc23-42f7-b0b1-94cf00d23c9a",
+  "prevId": "00000000-0000-0000-0000-000000000000",
+  "version": "7",
+  "dialect": "postgresql",
   "tables": {
-    "detail_ormas": {
+    "public.detail_ormas": {
       "name": "detail_ormas",
+      "schema": "",
       "columns": {
         "id": {
           "name": "id",
-          "type": "int",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": true
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
         },
         "ormas_id": {
           "name": "ormas_id",
-          "type": "int",
+          "type": "integer",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
+        },
+        "nama_ketua_ormas": {
+          "name": "nama_ketua_ormas",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nama_sekretaris_ormas": {
+          "name": "nama_sekretaris_ormas",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
         },
         "sk_badan_hukum": {
           "name": "sk_badan_hukum",
-          "type": "varchar(20)",
+          "type": "text",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         },
-        "sk_badan_keperguruan": {
-          "name": "sk_badan_keperguruan",
-          "type": "varchar(20)",
+        "sk_keperguruan": {
+          "name": "sk_keperguruan",
+          "type": "text",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         },
         "ad_art": {
           "name": "ad_art",
-          "type": "varchar(20)",
+          "type": "text",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         },
         "alamat_ormas": {
           "name": "alamat_ormas",
-          "type": "varchar(225)",
+          "type": "text",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         },
         "no_telp_ormas": {
           "name": "no_telp_ormas",
-          "type": "varchar(20)",
+          "type": "text",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         },
         "created_at": {
           "name": "created_at",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": false,
-          "autoincrement": false,
-          "default": "(now())"
+          "default": "now()"
         },
         "updated_at": {
           "name": "updated_at",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": false,
-          "autoincrement": false,
-          "default": "(now())"
+          "default": "now()"
         }
       },
       "indexes": {},
@@ -89,54 +93,53 @@
           "onUpdate": "cascade"
         }
       },
-      "compositePrimaryKeys": {
-        "detail_ormas_id": {
-          "name": "detail_ormas_id",
-          "columns": [
-            "id"
-          ]
-        }
-      },
+      "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "detail_ormas_ormas_id_unique": {
           "name": "detail_ormas_ormas_id_unique",
+          "nullsNotDistinct": false,
           "columns": [
             "ormas_id"
           ]
         }
       },
-      "checkConstraint": {}
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
-    "dokumen_ormas": {
+    "public.dokumen_ormas": {
       "name": "dokumen_ormas",
+      "schema": "",
       "columns": {
         "id": {
           "name": "id",
-          "type": "int",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": true
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
         },
         "detail_ormas_id": {
           "name": "detail_ormas_id",
-          "type": "int",
+          "type": "integer",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
+        },
+        "judul_dokumen": {
+          "name": "judul_dokumen",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
         },
         "link_dokumen": {
           "name": "link_dokumen",
-          "type": "varchar(20)",
+          "type": "text",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         },
         "status_dokumen": {
           "name": "status_dokumen",
-          "type": "enum('pengajuan','ditolak','diterima','tidak ada')",
+          "type": "varchar",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false,
           "default": "'pengajuan'"
         },
         "created_at": {
@@ -144,23 +147,20 @@
           "type": "timestamp",
           "primaryKey": false,
           "notNull": false,
-          "autoincrement": false,
-          "default": "(now())"
+          "default": "now()"
         },
         "updated_at": {
           "name": "updated_at",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": false,
-          "autoincrement": false,
-          "default": "(now())"
+          "default": "now()"
         },
         "deleted_at": {
           "name": "deleted_at",
-          "type": "date",
+          "type": "timestamp",
           "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
+          "notNull": false
         }
       },
       "indexes": {},
@@ -179,78 +179,66 @@
           "onUpdate": "cascade"
         }
       },
-      "compositePrimaryKeys": {
-        "dokumen_ormas_id": {
-          "name": "dokumen_ormas_id",
-          "columns": [
-            "id"
-          ]
-        }
-      },
+      "compositePrimaryKeys": {},
       "uniqueConstraints": {},
-      "checkConstraint": {}
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
-    "ormas": {
+    "public.ormas": {
       "name": "ormas",
+      "schema": "",
       "columns": {
         "id": {
           "name": "id",
-          "type": "int",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": true
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
         },
         "user_id": {
           "name": "user_id",
-          "type": "int",
+          "type": "integer",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         },
         "nama_ormas": {
           "name": "nama_ormas",
-          "type": "varchar(20)",
+          "type": "text",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         },
         "singkatan_ormas": {
           "name": "singkatan_ormas",
-          "type": "varchar(20)",
+          "type": "text",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         },
         "status_ormas": {
           "name": "status_ormas",
-          "type": "enum('Aktif','Non Aktif')",
+          "type": "varchar",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false,
-          "default": "'Non Aktif'"
+          "default": "'non aktif'"
         },
         "created_at": {
           "name": "created_at",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": false,
-          "autoincrement": false,
-          "default": "(now())"
+          "default": "now()"
         },
         "updated_at": {
           "name": "updated_at",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": false,
-          "autoincrement": false,
-          "default": "(now())"
+          "default": "now()"
         },
         "deleted_at": {
           "name": "deleted_at",
-          "type": "date",
+          "type": "timestamp",
           "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
+          "notNull": false
         }
       },
       "indexes": {},
@@ -269,102 +257,86 @@
           "onUpdate": "cascade"
         }
       },
-      "compositePrimaryKeys": {
-        "ormas_id": {
-          "name": "ormas_id",
-          "columns": [
-            "id"
-          ]
-        }
-      },
+      "compositePrimaryKeys": {},
       "uniqueConstraints": {},
-      "checkConstraint": {}
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
-    "users": {
+    "public.users": {
       "name": "users",
+      "schema": "",
       "columns": {
         "id": {
           "name": "id",
-          "type": "int",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": true
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
         },
         "username": {
           "name": "username",
-          "type": "varchar(20)",
+          "type": "text",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         },
         "email": {
           "name": "email",
-          "type": "varchar(20)",
+          "type": "text",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         },
         "password": {
           "name": "password",
-          "type": "varchar(20)",
+          "type": "text",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         },
         "role": {
           "name": "role",
-          "type": "enum('admin','akun ormas')",
+          "type": "varchar",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false,
-          "default": "'akun ormas'"
+          "default": "'ormas'"
         },
         "created_at": {
           "name": "created_at",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": false,
-          "autoincrement": false,
-          "default": "(now())"
+          "default": "now()"
         },
         "updated_at": {
           "name": "updated_at",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": false,
-          "autoincrement": false,
-          "default": "(now())"
+          "default": "now()"
         },
         "deleted_at": {
           "name": "deleted_at",
-          "type": "date",
+          "type": "timestamp",
           "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
+          "notNull": false
         }
       },
       "indexes": {},
       "foreignKeys": {},
-      "compositePrimaryKeys": {
-        "users_id": {
-          "name": "users_id",
-          "columns": [
-            "id"
-          ]
-        }
-      },
+      "compositePrimaryKeys": {},
       "uniqueConstraints": {},
-      "checkConstraint": {}
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     }
   },
+  "enums": {},
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
   "views": {},
   "_meta": {
+    "columns": {},
     "schemas": {},
-    "tables": {},
-    "columns": {}
-  },
-  "internal": {
-    "tables": {},
-    "indexes": {}
+    "tables": {}
   }
 }

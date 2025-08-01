@@ -1,94 +1,93 @@
-// import { relations } from "drizzle-orm";
 import {
-  mysqlTable,
-  int,
+  integer,
+  pgTable,
+  serial,
   varchar,
+  text,
   timestamp,
-  date,
-  mysqlEnum,
-} from "drizzle-orm/mysql-core";
+} from "drizzle-orm/pg-core";
 
-export const UsersTable = mysqlTable("users", {
-  id: int("id").primaryKey().autoincrement().notNull(),
-  username: varchar("username", { length: 255 }).notNull(),
-  email: varchar("email", { length: 255 }).notNull(),
-  password: varchar("password", { length: 255 }).notNull(),
-  role: mysqlEnum("role", ["admin", "ormas"]).notNull().default("ormas"),
+export const UsersTable = pgTable("users", {
+  id: serial("id").primaryKey(),
+  username: text("username").notNull(),
+  email: text("email").notNull(),
+  password: text("password").notNull(),
+  role: varchar("role", { enum: ["admin", "ormas"] })
+    .notNull()
+    .default("ormas"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at")
     .defaultNow()
     .$onUpdate(() => new Date()),
-  deletedAt: date("deleted_at"),
+  deletedAt: timestamp("deleted_at"),
 });
 
 //-------------------------------------------------------------------------
 
 //UserTable-OrmasTable relation is one-to-many for now
-export const OrmasTable = mysqlTable("ormas", {
-  id: int("id").primaryKey().autoincrement().notNull(),
-  userId: int("user_id")
+export const OrmasTable = pgTable("ormas", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id")
     .notNull()
     .references(() => UsersTable.id, {
       onDelete: "cascade",
       onUpdate: "cascade",
     }),
-  namaOrmas: varchar("nama_ormas", { length: 255 }).notNull(),
-  singkatanOrmas: varchar("singkatan_ormas", { length: 255 }).notNull(),
-  statusOrmas: mysqlEnum("status_ormas", ["Aktif", "Non Aktif"])
+  namaOrmas: text("nama_ormas").notNull(),
+  singkatanOrmas: text("singkatan_ormas").notNull(),
+  role: varchar("status_ormas", { enum: ["aktif", "non aktif"] })
     .notNull()
-    .default("Non Aktif"),
+    .default("non aktif"),
   createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-  deletedAt: date("deleted_at"),
+  updatedAt: timestamp("updated_at")
+    .defaultNow()
+    .$onUpdate(() => new Date()),
+  deletedAt: timestamp("deleted_at"),
 });
 
 //-------------------------------------------------------------------------
 
-export const DetailOrmasTable = mysqlTable("detail_ormas", {
-  id: int("id").primaryKey().autoincrement().notNull(),
-  OrmasId: int("ormas_id")
+export const DetailOrmasTable = pgTable("detail_ormas", {
+  id: serial("id").primaryKey(),
+  OrmasId: integer("ormas_id")
     .notNull()
     .unique()
     .references(() => OrmasTable.id, {
       onDelete: "cascade",
       onUpdate: "cascade",
     }),
-  namaKetuaOrmas: varchar("nama_ketua_ormas", { length: 255 }).notNull(),
-  namaSekretarisOrmas: varchar("nama_sekretaris_ormas", {
-    length: 255,
-  }).notNull(),
-  skBadanHukum: varchar("sk_badan_hukum", { length: 255 }).notNull(),
-  skKeperguruan: varchar("sk_keperguruan", {
-    length: 255,
-  }).notNull(),
-  adArt: varchar("ad_art", { length: 255 }).notNull(),
-  alamatOrmas: varchar("alamat_ormas", { length: 255 }).notNull(),
-  noTelpOrmas: varchar("no_telp_ormas", { length: 255 }).notNull(),
+  namaKetuaOrmas: text("nama_ketua_ormas").notNull(),
+  namaSekretarisOrmas: text("nama_sekretaris_ormas").notNull(),
+  skBadanHukum: text("sk_badan_hukum").notNull(),
+  skKeperguruan: text("sk_keperguruan").notNull(),
+  adArt: text("ad_art").notNull(),
+  alamatOrmas: text("alamat_ormas").notNull(),
+  noTelpOrmas: text("no_telp_ormas").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 //-------------------------------------------------------------------------
 
-export const DokumenOrmasTable = mysqlTable("dokumen_ormas", {
-  id: int("id").primaryKey().autoincrement().notNull(),
-  detailOrmasId: int("detail_ormas_id")
+export const DokumenOrmasTable = pgTable("dokumen_ormas", {
+  id: serial("id").primaryKey(),
+  detailOrmasId: integer("detail_ormas_id")
     .notNull()
     .references(() => DetailOrmasTable.id, {
       onDelete: "cascade",
       onUpdate: "cascade",
     }),
-  judulDokumen: varchar("judul_dokumen", { length: 255 }).notNull(),
-  linkDokumen: varchar("link_dokumen", { length: 255 }).notNull(),
-  statusDokumen: mysqlEnum("status_dokumen", [
-    "pengajuan",
-    "ditolak",
-    "diterima",
-    "tidak ada",
-  ])
+  judulDokumen: text("judul_dokumen").notNull(),
+  linkDokumen: text("link_dokumen").notNull(),
+
+  statusDokumen: varchar("status_dokumen", {
+    enum: ["pengajuan", "ditolak", "diterima", "tidak ada"],
+  })
     .notNull()
     .default("pengajuan"),
   createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-  deletedAt: date("deleted_at"),
+  updatedAt: timestamp("updated_at")
+    .defaultNow()
+    .$onUpdate(() => new Date()),
+  deletedAt: timestamp("deleted_at"),
 });
