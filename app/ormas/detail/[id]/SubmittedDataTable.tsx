@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { z } from "zod";
 import {
   useReactTable,
   createColumnHelper,
@@ -37,13 +38,13 @@ import { MdOutlineError } from "react-icons/md";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 
-type DokumenRecord = {
-  id: number;
-  judulDokumen: string;
-  linkDokumen: string;
-  statusDokumen: string;
-};
-
+export const DokumenSchema = z.object({
+  id: z.number(),
+  judulDokumen: z.string(),
+  linkDokumen: z.string(),
+  statusDokumen: z.string(),
+});
+type DokumenRecord = z.infer<typeof DokumenSchema>;
 interface DataTableProps {
   data: DokumenRecord[];
   loading: boolean;

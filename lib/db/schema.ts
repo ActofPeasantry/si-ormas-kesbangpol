@@ -1,20 +1,36 @@
 import {
-  integer,
   pgTable,
+  pgEnum,
+  integer,
   serial,
-  varchar,
   text,
   timestamp,
 } from "drizzle-orm/pg-core";
+import { USER_ROLES } from "../enums/UserRole";
+import { STATUS_ORMAS } from "../enums/StatusOrmas";
+import { STATUS_DOKUMEN } from "../enums/StatusDokumen";
+
+export const userRoleEnum = pgEnum("user_role", [
+  USER_ROLES.ADMIN,
+  USER_ROLES.ORMAS,
+]);
+export const statusOrmasEnum = pgEnum("status_ormas", [
+  STATUS_ORMAS.AKTIF,
+  STATUS_ORMAS.NON_AKTIF,
+]);
+export const statusDokumenEnum = pgEnum("status_dokumen", [
+  STATUS_DOKUMEN.PENGAJUAN,
+  STATUS_DOKUMEN.DITERIMA,
+  STATUS_DOKUMEN.DITOLAK,
+  STATUS_DOKUMEN.TIDAK_AKTIF,
+]);
 
 export const UsersTable = pgTable("users", {
   id: serial("id").primaryKey(),
   username: text("username").notNull(),
   email: text("email").notNull(),
   password: text("password").notNull(),
-  role: varchar("role", { enum: ["admin", "ormas"] })
-    .notNull()
-    .default("ormas"),
+  role: userRoleEnum("role").notNull().default("ormas"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at")
     .defaultNow()
@@ -35,9 +51,7 @@ export const OrmasTable = pgTable("ormas", {
     }),
   namaOrmas: text("nama_ormas").notNull(),
   singkatanOrmas: text("singkatan_ormas").notNull(),
-  role: varchar("status_ormas", { enum: ["aktif", "non aktif"] })
-    .notNull()
-    .default("non aktif"),
+  statusOrmas: statusOrmasEnum("status_ormas").notNull().default("non aktif"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at")
     .defaultNow()
@@ -80,9 +94,7 @@ export const DokumenOrmasTable = pgTable("dokumen_ormas", {
   judulDokumen: text("judul_dokumen").notNull(),
   linkDokumen: text("link_dokumen").notNull(),
 
-  statusDokumen: varchar("status_dokumen", {
-    enum: ["pengajuan", "ditolak", "diterima", "tidak ada"],
-  })
+  statusDokumen: statusDokumenEnum("status_dokumen")
     .notNull()
     .default("pengajuan"),
   createdAt: timestamp("created_at").defaultNow(),

@@ -68,7 +68,7 @@ export async function addOrmasData(formData: FormData) {
         password,
         role: "ormas",
       })
-      .$returningId();
+      .returning({ id: UsersTable.id });
 
     const userId = userResult[0].id;
 
@@ -79,9 +79,9 @@ export async function addOrmasData(formData: FormData) {
         userId: userId,
         namaOrmas,
         singkatanOrmas,
-        statusOrmas: "Non Aktif",
+        statusOrmas: "non aktif",
       })
-      .$returningId();
+      .returning({ id: OrmasTable.id });
 
     const ormasId = ormasResult[0].id;
 
@@ -107,7 +107,7 @@ export async function addOrmasData(formData: FormData) {
 export async function activateOrmas(id: number) {
   await db
     .update(OrmasTable)
-    .set({ statusOrmas: "Aktif" })
+    .set({ statusOrmas: "aktif" })
     .where(eq(OrmasTable.id, id));
 }
 

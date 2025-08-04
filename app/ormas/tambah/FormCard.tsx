@@ -160,7 +160,7 @@ export const FormCard = () => {
                         <Input
                           id="namaKetuaOrmas"
                           type="text"
-                          placeholder="namaKetuaOrmas"
+                          placeholder="Nama Ketua Ormas"
                           value={namaKetuaOrmas}
                           onChange={(e) => setNamaKetuaOrmas(e.target.value)}
                           required
@@ -174,7 +174,7 @@ export const FormCard = () => {
                         <Input
                           id="namaSekretarisOrmas"
                           type="text"
-                          placeholder="namaSekretarisOrmas"
+                          placeholder="Nama Sekretaris Ormas"
                           value={namaSekretarisOrmas}
                           onChange={(e) =>
                             setNamaSekretarisOrmas(e.target.value)

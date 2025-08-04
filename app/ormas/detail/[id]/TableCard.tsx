@@ -37,12 +37,18 @@ import {
 import { addDokumenOrmasData } from "@/lib/queries/dokumenOrmas";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { STATUS_DOKUMEN } from "@/lib/enums/StatusDokumen";
 
 export const OrmasSchema = z.object({
   id: z.number(),
   judulDokumen: z.string(),
   linkDokumen: z.string(),
-  statusDokumen: z.enum(["pengajuan", "ditolak", "diterima", "tidak ada"]),
+  statusDokumen: z.enum([
+    STATUS_DOKUMEN.PENGAJUAN,
+    STATUS_DOKUMEN.DITOLAK,
+    STATUS_DOKUMEN.DITERIMA,
+    STATUS_DOKUMEN.TIDAK_AKTIF,
+  ]),
 });
 
 type OrmasData = z.infer<typeof OrmasSchema>;
