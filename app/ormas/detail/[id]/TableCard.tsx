@@ -1,6 +1,7 @@
 "use client";
 import { z } from "zod";
 import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabase/client";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { DataTable } from "./DataTable";
 import { SubmittedDataTable } from "./SubmittedDataTable";
@@ -60,27 +61,53 @@ type DokumenData = {
 };
 
 export const TableCard = ({ numericId }: { numericId: number }) => {
+  // Table Checkbox state
   const [storedId, setStoredId] = useState<number[]>([]);
   const [disableButton, setDisableButton] = useState(true);
   const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({});
 
+  // Tambah Dokumen state
+  const [open, setOpen] = useState<boolean>(false);
+
+  // Upload file state
   const [judulDokumen, setJudulDokumen] = useState<string>("");
-  const [linkDokumen, setLinkDokumen] = useState<string>("");
-  const handleAddDokumen = async (event: React.FormEvent<HTMLFormElement>) => {
+  const [file, setFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState<boolean>(false);
+
+  const handleUploadDokumen = async (
+    event: React.FormEvent<HTMLFormElement>
+  ) => {
     event.preventDefault();
+    if (!file) return alert("tidak ada file yang diupload");
+    setUploading(true);
 
-    const formData = new FormData();
-    formData.append("judulDokumen", judulDokumen ?? "");
-    formData.append("linkDokumen", linkDokumen ?? "");
+    const linkDokumen = `${Date.now()}-${file.name}`;
+    const { error } = await supabase.storage
+      .from("dokumen-ormas")
+      .upload(linkDokumen, file, {
+        cacheControl: "3600",
+        upsert: false,
+      });
 
-    try {
-      await addDokumenOrmasData(formData, numericId);
-      setLinkDokumen("");
-      setJudulDokumen("");
-      refreshData.mutate();
-      console.log("submit success");
-    } catch (error) {
-      console.error("Error inserting data:", error);
+    if (error) {
+      console.error("Upload error:", error);
+      alert("Upload failed");
+    } else {
+      const formData = new FormData();
+      formData.append("judulDokumen", judulDokumen ?? "");
+      formData.append("linkDokumen", linkDokumen ?? "");
+
+      try {
+        await addDokumenOrmasData(formData, numericId);
+        setJudulDokumen("");
+        refreshData.mutate();
+        alert("Upload successful!");
+        setOpen(false);
+      } catch (error) {
+        console.error("Error inserting data:", error);
+      } finally {
+        setUploading(false);
+      }
     }
   };
 
@@ -163,13 +190,13 @@ export const TableCard = ({ numericId }: { numericId: number }) => {
         </CardTitle>
         {/* Dialog Tambah Dokumen */}
         <div className="my-4">
-          <Dialog>
+          <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
               <Button variant="outline">Tambah Dokumen</Button>
             </DialogTrigger>
 
             <DialogContent className="sm:max-w-[425px]">
-              <form onSubmit={handleAddDokumen}>
+              <form onSubmit={handleUploadDokumen}>
                 <div className="mb-4">
                   <DialogHeader>
                     <DialogTitle>Tambah Dokumen</DialogTitle>
@@ -192,8 +219,11 @@ export const TableCard = ({ numericId }: { numericId: number }) => {
                     <Input
                       id="name-1"
                       name="linkDokumen"
-                      value={linkDokumen}
-                      onChange={(e) => setLinkDokumen(e.target.value)}
+                      type="file"
+                      onChange={(e) => {
+                        const selected = e.target.files?.[0];
+                        if (selected) setFile(selected);
+                      }}
                       required
                     />
                   </div>
@@ -204,11 +234,13 @@ export const TableCard = ({ numericId }: { numericId: number }) => {
                       Cancel
                     </Button>
                   </DialogClose>
-                  <DialogClose asChild>
-                    <Button variant="outline" type="submit">
-                      Tambah
-                    </Button>
-                  </DialogClose>
+                  <Button
+                    variant="outline"
+                    type="submit"
+                    disabled={uploading || !file}
+                  >
+                    Tambah
+                  </Button>
                 </DialogFooter>
               </form>
             </DialogContent>

@@ -67,6 +67,7 @@ import {
   editDokumenOrmasData,
   updateDokumenOrmasData,
 } from "@/lib/queries/dokumenOrmas";
+import { supabase } from "@/lib/supabase/client";
 
 export const DokumenSchema = z.object({
   id: z.number(),
@@ -105,6 +106,11 @@ export const DataTable = ({
       setEditLinkDokumen(result.linkDokumen);
       setEditDialog(true);
     }
+  };
+
+  const handleDownload = async (url: string) => {
+    const { data } = supabase.storage.from("dokumen-ormas").getPublicUrl(url);
+    window.open(data.publicUrl, "_blank");
   };
 
   const handleUpdate = async (event: React.FormEvent, id: number) => {
@@ -163,15 +169,13 @@ export const DataTable = ({
     columnHelper.accessor("linkDokumen", {
       header: "Link Dokumen",
       cell: ({ row }) => (
-        <Button asChild variant="ghost" size="sm">
-          <a
-            href={row.original.linkDokumen}
-            target="_blank"
-            rel="external noopener noreferrer"
-          >
-            <IoDocumentTextSharp />
-            <span>Lihat Dokumen</span>
-          </a>
+        <Button
+          onClick={() => handleDownload(row.original.linkDokumen)}
+          variant="ghost"
+          size="sm"
+        >
+          <IoDocumentTextSharp />
+          <span>Lihat Dokumen</span>
         </Button>
       ),
     }),

@@ -15,6 +15,7 @@ import { FaCheckCircle } from "react-icons/fa";
 import { MdOutlineError } from "react-icons/md";
 import { getOrmasDetail } from "@/lib/queries/ormas";
 import { getDokumenOrmasData } from "@/lib/queries/dokumenOrmas";
+import { STATUS_ORMAS } from "@/lib/enums/StatusOrmas";
 
 export const OrmasSchema = z.object({
   id: z.number(),
@@ -35,7 +36,7 @@ export const DokumenSchema = z.object({
   id: z.number(),
   judulDokumen: z.string(),
   linkDokumen: z.string(),
-  statusDokumen: z.enum(["pengajuan", "ditolak", "diterima", "tidak ada"]),
+  statusDokumen: z.string(),
 });
 type DokumenRecord = z.infer<typeof DokumenSchema>;
 
@@ -77,7 +78,7 @@ export const FormCard = ({ numericId }: { numericId: number }) => {
               <span className="font-semibold">Status</span>
               <span>
                 <Badge variant="outline" className=" px-1.5">
-                  {data.ormasRecords[0].statusOrmas === "Aktif" ? (
+                  {data.ormasRecords[0].statusOrmas === STATUS_ORMAS.AKTIF ? (
                     <FaCheckCircle className="fill-green-500 dark:fill-green-400" />
                   ) : (
                     <MdOutlineError className="fill-yellow-500 dark:fill-yellow-400" />
@@ -119,7 +120,6 @@ export const FormCard = ({ numericId }: { numericId: number }) => {
               <span>{data.ormasRecords[0].adArt}</span>
             </div>
           </div>
-          <h1>Dokumen Ormas</h1>
         </CardContent>
         <CardFooter className="flex-col items-start gap-1.5 text-sm"></CardFooter>
       </Card>
