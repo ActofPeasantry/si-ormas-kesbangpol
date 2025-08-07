@@ -66,7 +66,7 @@ export const TableCard = ({ numericId }: { numericId: number }) => {
   const [disableButton, setDisableButton] = useState(true);
   const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({});
 
-  // Tambah Dokumen state
+  // Tambah Dokumen Dialog state
   const [open, setOpen] = useState<boolean>(false);
 
   // Upload file state
@@ -205,9 +205,8 @@ export const TableCard = ({ numericId }: { numericId: number }) => {
                 </div>
                 <div className="grid gap-4">
                   <div className="grid gap-3">
-                    <Label htmlFor="name-1">Judul Dokumen</Label>
+                    <Label>Judul Dokumen</Label>
                     <Input
-                      id="name-1"
                       name="judulDokumen"
                       value={judulDokumen}
                       onChange={(e) => setJudulDokumen(e.target.value)}
@@ -215,9 +214,8 @@ export const TableCard = ({ numericId }: { numericId: number }) => {
                     />
                   </div>
                   <div className="grid gap-3">
-                    <Label htmlFor="name-1">Link Dokumen</Label>
+                    <Label>Link Dokumen</Label>
                     <Input
-                      id="name-1"
                       name="linkDokumen"
                       type="file"
                       onChange={(e) => {
