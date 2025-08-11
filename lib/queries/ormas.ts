@@ -3,6 +3,7 @@
 import { db } from "@/lib/db";
 import { DetailOrmasTable, OrmasTable, UsersTable } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
+import { STATUS_ORMAS } from "../enums/StatusOrmas";
 
 export async function getOrmasData() {
   const result = await db
@@ -79,7 +80,7 @@ export async function addOrmasData(formData: FormData) {
         userId: userId,
         namaOrmas,
         singkatanOrmas,
-        statusOrmas: "non aktif",
+        statusOrmas: STATUS_ORMAS.NON_AKTIF,
       })
       .returning({ id: OrmasTable.id });
 
@@ -107,7 +108,7 @@ export async function addOrmasData(formData: FormData) {
 export async function activateOrmas(id: number) {
   await db
     .update(OrmasTable)
-    .set({ statusOrmas: "aktif" })
+    .set({ statusOrmas: STATUS_ORMAS.AKTIF })
     .where(eq(OrmasTable.id, id));
 }
 

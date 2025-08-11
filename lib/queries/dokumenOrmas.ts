@@ -7,12 +7,13 @@ import {
   // OrmasTable,
 } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
+import { STATUS_DOKUMEN } from "../enums/StatusDokumen";
 
 export async function acceptDokumenOrmas(id: number) {
   try {
     await db
       .update(DokumenOrmasTable)
-      .set({ statusDokumen: "diterima", updatedAt: new Date() })
+      .set({ statusDokumen: STATUS_DOKUMEN.DITERIMA, updatedAt: new Date() })
       .where(eq(DokumenOrmasTable.id, id));
   } catch (error) {
     console.error("Error inserting data:", error);
@@ -22,7 +23,7 @@ export async function refuseDokumenOrmas(id: number) {
   try {
     await db
       .update(DokumenOrmasTable)
-      .set({ statusDokumen: "ditolak", updatedAt: new Date() })
+      .set({ statusDokumen: STATUS_DOKUMEN.DITOLAK, updatedAt: new Date() })
       .where(eq(DokumenOrmasTable.id, id));
   } catch (error) {
     console.error("Error inserting data:", error);
@@ -93,7 +94,7 @@ export async function getSubmittedDokumenOrmasData(id: number) {
     .from(DokumenOrmasTable)
     .where(
       eq(DokumenOrmasTable.detailOrmasId, id) &&
-        eq(DokumenOrmasTable.statusDokumen, "pengajuan")
+        eq(DokumenOrmasTable.statusDokumen, STATUS_DOKUMEN.PENGAJUAN)
     );
 }
 export async function getAcceptedDokumenOrmasData(id: number) {
@@ -107,7 +108,7 @@ export async function getAcceptedDokumenOrmasData(id: number) {
     .from(DokumenOrmasTable)
     .where(
       eq(DokumenOrmasTable.detailOrmasId, id) &&
-        eq(DokumenOrmasTable.statusDokumen, "diterima")
+        eq(DokumenOrmasTable.statusDokumen, STATUS_DOKUMEN.DITERIMA)
     );
 }
 
@@ -122,7 +123,7 @@ export async function getRejectedDokumenOrmasData(id: number) {
     .from(DokumenOrmasTable)
     .where(
       eq(DokumenOrmasTable.detailOrmasId, id) &&
-        eq(DokumenOrmasTable.statusDokumen, "ditolak")
+        eq(DokumenOrmasTable.statusDokumen, STATUS_DOKUMEN.DITOLAK)
     );
 }
 
@@ -146,7 +147,7 @@ export async function addDokumenOrmasData(formData: FormData, id: number) {
       detailOrmasId: id,
       judulDokumen,
       linkDokumen,
-      statusDokumen: "pengajuan",
+      statusDokumen: STATUS_DOKUMEN.PENGAJUAN,
     });
   } catch (error) {
     console.error("Error inserting data:", error);
@@ -171,7 +172,11 @@ export async function updateDokumenOrmasData(formData: FormData, id: number) {
   try {
     await db
       .update(DokumenOrmasTable)
-      .set({ judulDokumen, linkDokumen, statusDokumen: "pengajuan" })
+      .set({
+        judulDokumen,
+        linkDokumen,
+        statusDokumen: STATUS_DOKUMEN.PENGAJUAN,
+      })
       .where(eq(DokumenOrmasTable.id, id));
   } catch (error) {
     console.error("Error inserting data:", error);

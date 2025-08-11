@@ -12,7 +12,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { addOrmasData } from "@/lib/queries/ormas";
-import { encrypt } from "@/lib/crypto";
+// import { encrypt } from "@/lib/auth/encryption/crypto";
+import { hashPassword } from "@/lib/auth/encryption/bcrypt";
 
 export const FormCard = () => {
   const router = useRouter();
@@ -32,7 +33,7 @@ export const FormCard = () => {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    const hashedPassword = await encrypt("12345678");
+    const hashedPassword = await hashPassword("password");
 
     const formData = new FormData();
     const fields = {

@@ -40,6 +40,20 @@ export const UsersTable = pgTable("users", {
 
 //-------------------------------------------------------------------------
 
+export const ResetPasswordTable = pgTable("reset_password_table", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id")
+    .notNull()
+    .references(() => OrmasTable.id, {
+      onDelete: "cascade",
+      onUpdate: "cascade",
+    }),
+  token: text("token").notNull(),
+  expiresAt: timestamp("expires_at").notNull(),
+});
+
+//-------------------------------------------------------------------------
+
 //UserTable-OrmasTable relation is one-to-many for now
 export const OrmasTable = pgTable("ormas", {
   id: serial("id").primaryKey(),

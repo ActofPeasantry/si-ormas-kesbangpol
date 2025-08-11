@@ -8,8 +8,9 @@ import {
 } from "@/lib/auth/session";
 import { redirect } from "next/navigation";
 import { checkLoginUser, findUser } from "../queries/user";
-import { decrypt } from "@/lib/crypto";
+// import { decrypt } from "@/lib/auth/encryption/crypto";
 import { cookies } from "next/headers";
+import { checkPassword } from "./encryption/bcrypt";
 
 // const testUser = {
 //   id: "1",
@@ -43,9 +44,24 @@ export async function login(
 
   const { email, password } = result.data;
   const user = await checkLoginUser(email);
-  const decryptedPassword = await decrypt(user.password);
+  if (!user) {
+    return {
+      errors: {
+        email: ["Invalid email or password"],
+      },
+    };
+  }
+  // const decryptedPassword = await decrypt(user.password);
+  const isPasswordExist = await checkPassword(password, user.password);
 
-  if (email !== user.email || password !== decryptedPassword) {
+  // if (email !== user.email || password !== decryptedPassword) {
+  //   return {
+  //     errors: {
+  //       email: ["Invalid email or password"],
+  //     },
+  //   };
+  // }
+  if (email !== user.email || isPasswordExist === false) {
     return {
       errors: {
         email: ["Invalid email or password"],
