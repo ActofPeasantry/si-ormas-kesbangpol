@@ -1,11 +1,11 @@
 "use server";
 
-import { db } from "@/lib/db";
+import { db } from "@/lib/drizzle";
 import {
   // DetailOrmasTable,
   DokumenOrmasTable,
   // OrmasTable,
-} from "@/lib/db/schema";
+} from "@/lib/drizzle/schema";
 import { eq } from "drizzle-orm";
 import { STATUS_DOKUMEN } from "../enums/StatusDokumen";
 

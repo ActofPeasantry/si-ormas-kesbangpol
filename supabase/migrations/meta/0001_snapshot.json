@@ -1,5 +1,5 @@
 {
-  "id": "99820445-dc23-42f7-b0b1-94cf00d23c9a",
+  "id": "3473aa0f-4bdc-47a3-a68a-cdc59cdc4971",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -137,7 +137,8 @@
         },
         "status_dokumen": {
           "name": "status_dokumen",
-          "type": "varchar",
+          "type": "status_dokumen",
+          "typeSchema": "public",
           "primaryKey": false,
           "notNull": true,
           "default": "'pengajuan'"
@@ -215,7 +216,8 @@
         },
         "status_ormas": {
           "name": "status_ormas",
-          "type": "varchar",
+          "type": "status_ormas",
+          "typeSchema": "public",
           "primaryKey": false,
           "notNull": true,
           "default": "'non aktif'"
@@ -263,6 +265,57 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
+    "public.reset_password_table": {
+      "name": "reset_password_table",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "token": {
+          "name": "token",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "reset_password_table_user_id_ormas_id_fk": {
+          "name": "reset_password_table_user_id_ormas_id_fk",
+          "tableFrom": "reset_password_table",
+          "tableTo": "ormas",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.users": {
       "name": "users",
       "schema": "",
@@ -293,7 +346,8 @@
         },
         "role": {
           "name": "role",
-          "type": "varchar",
+          "type": "user_role",
+          "typeSchema": "public",
           "primaryKey": false,
           "notNull": true,
           "default": "'ormas'"
@@ -328,7 +382,34 @@
       "isRLSEnabled": false
     }
   },
-  "enums": {},
+  "enums": {
+    "public.status_dokumen": {
+      "name": "status_dokumen",
+      "schema": "public",
+      "values": [
+        "pengajuan",
+        "diterima",
+        "ditolak",
+        "tidak aktif"
+      ]
+    },
+    "public.status_ormas": {
+      "name": "status_ormas",
+      "schema": "public",
+      "values": [
+        "aktif",
+        "non aktif"
+      ]
+    },
+    "public.user_role": {
+      "name": "user_role",
+      "schema": "public",
+      "values": [
+        "admin",
+        "ormas"
+      ]
+    }
+  },
   "schemas": {},
   "sequences": {},
   "roles": {},
