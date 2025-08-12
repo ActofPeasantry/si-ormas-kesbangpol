@@ -44,7 +44,7 @@ export const ResetPasswordTable = pgTable("reset_password_table", {
   id: serial("id").primaryKey(),
   userId: integer("user_id")
     .notNull()
-    .references(() => OrmasTable.id, {
+    .references(() => UsersTable.id, {
       onDelete: "cascade",
       onUpdate: "cascade",
     }),

@@ -1,5 +1,5 @@
-import { db } from "@/lib/db";
-import { UsersTable } from "@/lib/db/schema";
+import { db } from "@/lib/drizzle";
+import { UsersTable } from "@/lib/drizzle/schema";
 import { eq } from "drizzle-orm";
 
 export async function checkLoginUser(email: string) {

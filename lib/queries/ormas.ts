@@ -1,7 +1,7 @@
 "use server";
 
-import { db } from "@/lib/db";
-import { DetailOrmasTable, OrmasTable, UsersTable } from "@/lib/db/schema";
+import { db } from "@/lib/drizzle";
+import { DetailOrmasTable, OrmasTable, UsersTable } from "@/lib/drizzle/schema";
 import { eq } from "drizzle-orm";
 import { STATUS_ORMAS } from "../enums/StatusOrmas";
 
