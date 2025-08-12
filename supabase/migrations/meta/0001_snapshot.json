@@ -1,5 +1,5 @@
 {
-  "id": "14bab192-7f44-4577-9ece-e6559e7b4971",
+  "id": "3473aa0f-4bdc-47a3-a68a-cdc59cdc4971",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -83,12 +83,8 @@
           "name": "detail_ormas_ormas_id_ormas_id_fk",
           "tableFrom": "detail_ormas",
           "tableTo": "ormas",
-          "columnsFrom": [
-            "ormas_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["ormas_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         }
@@ -98,9 +94,7 @@
         "detail_ormas_ormas_id_unique": {
           "name": "detail_ormas_ormas_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "ormas_id"
-          ]
+          "columns": ["ormas_id"]
         }
       },
       "policies": {},
@@ -170,12 +164,8 @@
           "name": "dokumen_ormas_detail_ormas_id_detail_ormas_id_fk",
           "tableFrom": "dokumen_ormas",
           "tableTo": "detail_ormas",
-          "columnsFrom": [
-            "detail_ormas_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["detail_ormas_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         }
@@ -249,12 +239,8 @@
           "name": "ormas_user_id_users_id_fk",
           "tableFrom": "ormas",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         }
@@ -296,16 +282,12 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "reset_password_table_user_id_users_id_fk": {
-          "name": "reset_password_table_user_id_users_id_fk",
+        "reset_password_table_user_id_ormas_id_fk": {
+          "name": "reset_password_table_user_id_ormas_id_fk",
           "tableFrom": "reset_password_table",
-          "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "tableTo": "ormas",
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         }
@@ -386,28 +368,17 @@
     "public.status_dokumen": {
       "name": "status_dokumen",
       "schema": "public",
-      "values": [
-        "pengajuan",
-        "diterima",
-        "ditolak",
-        "tidak aktif"
-      ]
+      "values": ["pengajuan", "diterima", "ditolak", "tidak aktif"]
     },
     "public.status_ormas": {
       "name": "status_ormas",
       "schema": "public",
-      "values": [
-        "aktif",
-        "non aktif"
-      ]
+      "values": ["aktif", "non aktif"]
     },
     "public.user_role": {
       "name": "user_role",
       "schema": "public",
-      "values": [
-        "admin",
-        "ormas"
-      ]
+      "values": ["admin", "ormas"]
     }
   },
   "schemas": {},
