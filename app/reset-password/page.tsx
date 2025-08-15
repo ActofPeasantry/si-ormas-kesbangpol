@@ -1,4 +1,6 @@
 "use client";
+
+import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -12,12 +14,9 @@ import { Label } from "@/components/ui/label";
 import { resetPassword } from "@/lib/auth/action";
 import { useFormStatus } from "react-dom";
 
-interface ResetPasswordPageProps {
-  searchParams?: { token?: string };
-}
-
-export default function Page({ searchParams }: ResetPasswordPageProps) {
-  const token = searchParams?.token;
+export default function Page() {
+  const searchParams = useSearchParams();
+  const token = searchParams.get("token");
 
   if (!token) {
     return <p>Invalid or missing token</p>;
