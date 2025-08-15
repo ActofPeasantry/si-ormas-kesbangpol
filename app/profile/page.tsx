@@ -1,7 +1,9 @@
+"use server";
 import { AppSidebar } from "@/components/app-sidebar";
 import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { TableCard } from "./TableCard";
+import { FormCard } from "./FormCard";
+import { getCurrentUser } from "@/lib/auth/action";
 
 const breadcrumb = [
   {
@@ -9,16 +11,14 @@ const breadcrumb = [
     url: "/",
   },
   {
-    title: "Ormas",
-    url: "/ormas",
-  },
-  {
-    title: "Kelola Dokumen Ormas",
-    url: "/ormas/kelola_dokumen",
+    title: "Profile",
+    url: "/profile",
   },
 ];
 
-export default function Page() {
+export default async function Page() {
+  const user = await getCurrentUser();
+  if (!user) return null;
   return (
     <SidebarProvider
       style={
@@ -32,7 +32,7 @@ export default function Page() {
       <SidebarInset>
         {/* <CardDescription /> */}
         <SiteHeader breadcrumb={breadcrumb} />
-        <TableCard />
+        <FormCard user={user} />
       </SidebarInset>
     </SidebarProvider>
   );

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { z } from "zod";
 import {
   useReactTable,
   createColumnHelper,
@@ -6,6 +7,7 @@ import {
   getCoreRowModel,
   getPaginationRowModel,
 } from "@tanstack/react-table";
+import type { TableState } from "@tanstack/react-table"; //only importing the type definition TableState from TanStack Table — not any runtime JavaScript.
 import {
   Table,
   TableBody,
@@ -18,116 +20,59 @@ import {
 import {
   Select,
   SelectContent,
-  SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import {
   IconChevronLeft,
   IconChevronRight,
   IconChevronsLeft,
   IconChevronsRight,
-  IconDotsVertical,
 } from "@tabler/icons-react";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { IoDocumentTextSharp } from "react-icons/io5";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { FaCheckCircle } from "react-icons/fa";
 import { MdOutlineError } from "react-icons/md";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import {
-  deleteDokumenOrmasData,
-  editDokumenOrmasData,
-  updateDokumenOrmasStatus,
-} from "@/lib/queries/dokumenOrmas";
+import { supabase } from "@/lib/supabase/client";
 
-type DokumenRecord = {
-  id: number;
-  namaOrmas: string | null;
-  judulDokumen: string;
-  linkDokumen: string;
-  statusDokumen: string;
-};
-export const DataTable = ({
-  data,
-  loading,
-  onUpdateData,
-  onDeleteData,
-}: {
+export const DokumenSchema = z.object({
+  id: z.number(),
+  judulDokumen: z.string(),
+  linkDokumen: z.string(),
+  statusDokumen: z.string(),
+});
+type DokumenRecord = z.infer<typeof DokumenSchema>;
+interface DataTableProps {
   data: DokumenRecord[];
   loading: boolean;
-  onDeleteData: () => void;
-  onUpdateData: () => void;
-}) => {
+  isSubmittedTable: boolean;
+  setStoredId?: React.Dispatch<React.SetStateAction<number[]>>;
+  rowSelection?: TableState["rowSelection"];
+  setRowSelection?: React.Dispatch<
+    React.SetStateAction<TableState["rowSelection"]>
+  >;
+}
+
+export const SubmittedDataTable = ({
+  data,
+  loading,
+  isSubmittedTable,
+  setStoredId,
+  rowSelection,
+  setRowSelection,
+}: DataTableProps) => {
   const [pagination, setPagination] = useState({
     pageIndex: 0,
     pageSize: 10,
   });
 
-  const [editDialog, setEditDialog] = useState(false);
-  const [editStatusDokumen, setEditStatusDokumen] = useState<
-    string | undefined
-  >("");
-  const [deleteDialog, setDeleteDialog] = useState(false);
-  const [rowId, setRowId] = useState<number>(0);
-
-  const handleEdit = async (id: number) => {
-    const result = await editDokumenOrmasData(id);
-    if (result) setEditStatusDokumen(result.statusDokumen);
-    setRowId(id);
-    setEditDialog(true);
-  };
-  const handleUpdate = async (event: React.FormEvent, id: number) => {
-    event?.preventDefault();
-    const formData = new FormData();
-    formData.append("statusDokumen", editStatusDokumen || "");
-
-    try {
-      await updateDokumenOrmasStatus(id, formData);
-      onUpdateData();
-      setEditDialog(false);
-      console.log("update success");
-    } catch (error) {
-      console.error("Error inserting data:", error);
-    }
-  };
-
-  const handleDelete = async (id: number) => {
-    try {
-      await deleteDokumenOrmasData(id);
-      onDeleteData();
-      console.log("delete success");
-    } catch (error) {
-      console.error("Error deleting data:", error);
-    }
-    setDeleteDialog(false);
+  const handleDownload = async (url: string) => {
+    const { data } = supabase.storage.from("dokumen-ormas").getPublicUrl(url);
+    window.open(data.publicUrl, "_blank");
   };
 
   const getStatusIcon = (status: string) => {
@@ -150,28 +95,24 @@ export const DataTable = ({
   };
 
   const columnHelper = createColumnHelper<DokumenRecord>();
-  const columns = [
-    columnHelper.accessor("namaOrmas", {
-      header: "Nama Ormas",
-    }),
+  const baseColumns = [
     columnHelper.accessor("judulDokumen", {
       header: "Judul Dokumen",
     }),
     columnHelper.accessor("linkDokumen", {
       header: "Link Dokumen",
       cell: ({ row }) => (
-        <Button asChild variant="ghost" size="sm">
-          <a
-            href={row.original.linkDokumen}
-            target="_blank"
-            rel="external noopener noreferrer"
-          >
-            <IoDocumentTextSharp />
-            <span>Lihat Dokumen</span>
-          </a>
+        <Button
+          onClick={() => handleDownload(row.original.linkDokumen)}
+          variant="ghost"
+          size="sm"
+        >
+          <IoDocumentTextSharp />
+          <span>Lihat Dokumen</span>
         </Button>
       ),
     }),
+
     columnHelper.accessor("statusDokumen", {
       header: "Status Dokumen",
       cell: ({ row }) => (
@@ -182,56 +123,75 @@ export const DataTable = ({
         </Badge>
       ),
     }),
-    columnHelper.display({
-      id: "actions",
-      cell: (info) => (
-        <>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                className="data-[state=open]:bg-muted text-muted-foreground flex size-8"
-                size="icon"
-              >
-                <IconDotsVertical />
-                <span className="sr-only">Open menu</span>
-              </Button>
-            </DropdownMenuTrigger>
+  ];
 
-            <DropdownMenuContent align="end" className="w-32">
-              <DropdownMenuItem
-                onClick={() => {
-                  handleEdit(info.row.original.id);
-                  setRowId(info.row.original.id);
-                }}
-              >
-                Ubah
-              </DropdownMenuItem>
-
-              <DropdownMenuSeparator />
-              {/* DELETE BUTTON */}
-              <DropdownMenuItem
-                onClick={() => {
-                  setDeleteDialog(true);
-                  setRowId(info.row.original.id);
-                }}
-                className="text-red-600 focus:bg-red-600 focus:text-white"
-              >
-                Hapus
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </>
+  const selectColumns = [
+    columnHelper.accessor("id", {
+      header: ({ table }) => (
+        <div className="flex items-center justify-center">
+          <Checkbox
+            checked={
+              table.getIsAllPageRowsSelected() ||
+              (table.getIsSomePageRowsSelected() && "indeterminate")
+            }
+            onCheckedChange={(value) => {
+              table.toggleAllPageRowsSelected(!!value);
+              const selectedIds = table
+                .getRowModel()
+                .rows.map((row) => row.original.id);
+              if (setStoredId) {
+                setStoredId(value ? selectedIds : []);
+              }
+            }}
+            aria-label="Select all"
+          />
+        </div>
       ),
+      cell: ({ row }) => (
+        <div className="flex items-center justify-center">
+          <Checkbox
+            checked={row.getIsSelected()}
+            onCheckedChange={(value) => {
+              row.toggleSelected(!!value);
+
+              if (setStoredId) {
+                const rowId = row.original.id;
+
+                setStoredId((prev) => {
+                  // Add if checked
+                  if (value === true) {
+                    return [...new Set([...prev, rowId])];
+                  }
+                  // Remove if unchecked
+                  if (value === false) {
+                    return prev.filter((id) => id !== rowId);
+                  }
+
+                  return prev;
+                });
+              }
+            }}
+            aria-label="Select row"
+          />
+        </div>
+      ),
+      enableSorting: false,
+      enableHiding: false,
     }),
   ];
+
+  const columns = isSubmittedTable
+    ? [...selectColumns, ...baseColumns]
+    : baseColumns;
 
   const table = useReactTable({
     data,
     columns,
     state: {
+      rowSelection,
       pagination,
     },
+    onRowSelectionChange: setRowSelection,
     getPaginationRowModel: getPaginationRowModel(),
     onPaginationChange: setPagination,
     getCoreRowModel: getCoreRowModel(),
@@ -276,7 +236,10 @@ export const DataTable = ({
       </Table>
 
       <div className="flex items-center justify-between px-4">
-        <div className="text-muted-foreground hidden flex-1 text-sm lg:flex"></div>
+        <div className="text-muted-foreground hidden flex-1 text-sm lg:flex">
+          {table.getFilteredSelectedRowModel().rows.length} of{" "}
+          {table.getFilteredRowModel().rows.length} row(s) selected.
+        </div>
         <div className="flex w-full items-center gap-8 lg:w-fit">
           <div className="hidden items-center gap-2 lg:flex">
             <Label htmlFor="rows-per-page" className="text-sm font-medium">
@@ -349,73 +312,6 @@ export const DataTable = ({
           </div>
         </div>
       </div>
-
-      {/* EDIT DIALOG */}
-      <Dialog open={editDialog} onOpenChange={setEditDialog}>
-        <DialogContent>
-          <form onSubmit={(e) => handleUpdate(e, rowId)}>
-            <DialogHeader>
-              <DialogTitle>Edit Dokumen</DialogTitle>
-            </DialogHeader>
-            <div className="grid gap-4 my-4">
-              <Label>Status Dokumen</Label>
-            </div>
-            <Select
-              value={editStatusDokumen}
-              onValueChange={(value) => {
-                setEditStatusDokumen(value);
-                console.log("value:", value);
-              }}
-            >
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Pilih Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  <SelectLabel>Status Dokumen</SelectLabel>
-                  <SelectItem value="pengajuan">Pengajuan</SelectItem>
-                  <SelectItem value="diterima">Diterima</SelectItem>
-                  <SelectItem value="ditolak">Ditolak</SelectItem>
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-            <DialogFooter>
-              <DialogClose asChild>
-                <Button variant="outline">Batal</Button>
-              </DialogClose>
-              <DialogClose asChild>
-                <Button variant="outline" type="submit">
-                  Ubah
-                </Button>
-              </DialogClose>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
-
-      {/* DELETE DIALOG */}
-      <AlertDialog open={deleteDialog} onOpenChange={setDeleteDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete your
-              account and remove your data from our servers.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Batal</AlertDialogCancel>
-            <AlertDialogAction
-              className="bg-red-600 text-white hover:bg-red-700 focus:ring-red-500"
-              onClick={() => {
-                handleDelete(rowId);
-              }}
-            >
-              Hapus
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </>
   );
 };

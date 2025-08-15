@@ -1,8 +1,9 @@
 "use server";
 
-import { db } from "@/lib/db";
-import { DetailOrmasTable, OrmasTable, UsersTable } from "@/lib/db/schema";
+import { db } from "@/lib/drizzle";
+import { DetailOrmasTable, OrmasTable, UsersTable } from "@/lib/drizzle/schema";
 import { eq } from "drizzle-orm";
+import { STATUS_ORMAS } from "../enums/StatusOrmas";
 
 export async function getOrmasData() {
   const result = await db
@@ -68,7 +69,7 @@ export async function addOrmasData(formData: FormData) {
         password,
         role: "ormas",
       })
-      .$returningId();
+      .returning({ id: UsersTable.id });
 
     const userId = userResult[0].id;
 
@@ -79,9 +80,9 @@ export async function addOrmasData(formData: FormData) {
         userId: userId,
         namaOrmas,
         singkatanOrmas,
-        statusOrmas: "Non Aktif",
+        statusOrmas: STATUS_ORMAS.NON_AKTIF,
       })
-      .$returningId();
+      .returning({ id: OrmasTable.id });
 
     const ormasId = ormasResult[0].id;
 
@@ -107,7 +108,7 @@ export async function addOrmasData(formData: FormData) {
 export async function activateOrmas(id: number) {
   await db
     .update(OrmasTable)
-    .set({ statusOrmas: "Aktif" })
+    .set({ statusOrmas: STATUS_ORMAS.AKTIF })
     .where(eq(OrmasTable.id, id));
 }
 
@@ -169,8 +170,6 @@ export async function updateOrmasData(id: number, formData: FormData) {
         adArt,
       })
       .where(eq(DetailOrmasTable.OrmasId, id));
-
-    console.log("Updated ormasId:", id);
   } catch (error) {
     console.error("Error inserting data:", error);
   }
@@ -179,7 +178,6 @@ export async function updateOrmasData(id: number, formData: FormData) {
 export async function deleteOrmasData(id: number) {
   try {
     await db.delete(OrmasTable).where(eq(OrmasTable.id, id));
-    console.log("Deleted ormasId:", id);
   } catch (error) {
     console.error("Error deleting data:", error);
   }

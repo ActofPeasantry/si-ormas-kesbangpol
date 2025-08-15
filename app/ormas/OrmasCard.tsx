@@ -4,6 +4,7 @@ import { Card, CardTitle, CardHeader, CardFooter } from "@/components/ui/card";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { DataTable } from "@/app/ormas/DataTable";
 import { getOrmasData } from "@/lib/queries/ormas";
+import { STATUS_ORMAS } from "@/lib/enums/StatusOrmas";
 
 export const OrmasSchema = z.object({
   id: z.number(),
@@ -11,7 +12,7 @@ export const OrmasSchema = z.object({
   singkatanOrmas: z.string(),
   alamatOrmas: z.string().nullable(),
   noTelpOrmas: z.string().nullable(),
-  statusOrmas: z.string(),
+  statusOrmas: z.enum([STATUS_ORMAS.AKTIF, STATUS_ORMAS.NON_AKTIF]),
 });
 
 export const OrmasDataSchema = z.object({

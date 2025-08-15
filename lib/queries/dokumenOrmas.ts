@@ -1,18 +1,19 @@
 "use server";
 
-import { db } from "@/lib/db";
+import { db } from "@/lib/drizzle";
 import {
-  DetailOrmasTable,
+  // DetailOrmasTable,
   DokumenOrmasTable,
-  OrmasTable,
-} from "@/lib/db/schema";
+  // OrmasTable,
+} from "@/lib/drizzle/schema";
 import { eq } from "drizzle-orm";
+import { STATUS_DOKUMEN } from "../enums/StatusDokumen";
 
 export async function acceptDokumenOrmas(id: number) {
   try {
     await db
       .update(DokumenOrmasTable)
-      .set({ statusDokumen: "diterima", updatedAt: new Date() })
+      .set({ statusDokumen: STATUS_DOKUMEN.DITERIMA, updatedAt: new Date() })
       .where(eq(DokumenOrmasTable.id, id));
   } catch (error) {
     console.error("Error inserting data:", error);
@@ -22,64 +23,108 @@ export async function refuseDokumenOrmas(id: number) {
   try {
     await db
       .update(DokumenOrmasTable)
-      .set({ statusDokumen: "ditolak", updatedAt: new Date() })
+      .set({ statusDokumen: STATUS_DOKUMEN.DITOLAK, updatedAt: new Date() })
       .where(eq(DokumenOrmasTable.id, id));
   } catch (error) {
     console.error("Error inserting data:", error);
   }
 }
 
-export async function getSubmittedDokumenOrmasDataWithNamaOrmas() {
+// export async function getSubmittedDokumenOrmasDataWithNamaOrmas() {
+//   return await db
+//     .select({
+//       namaOrmas: OrmasTable.namaOrmas,
+//       id: DokumenOrmasTable.id,
+//       judulDokumen: DokumenOrmasTable.judulDokumen,
+//       linkDokumen: DokumenOrmasTable.linkDokumen,
+//       statusDokumen: DokumenOrmasTable.statusDokumen,
+//     })
+//     .from(DokumenOrmasTable)
+//     .leftJoin(
+//       DetailOrmasTable,
+//       eq(DokumenOrmasTable.detailOrmasId, DetailOrmasTable.id)
+//     )
+//     .leftJoin(OrmasTable, eq(OrmasTable.id, DetailOrmasTable.OrmasId))
+//     .where(eq(DokumenOrmasTable.statusDokumen, "pengajuan"));
+// }
+
+// export async function getAcceptedDokumenOrmasDataWithNamaOrmas() {
+//   return await db
+//     .select({
+//       namaOrmas: OrmasTable.namaOrmas,
+//       id: DokumenOrmasTable.id,
+//       judulDokumen: DokumenOrmasTable.judulDokumen,
+//       linkDokumen: DokumenOrmasTable.linkDokumen,
+//       statusDokumen: DokumenOrmasTable.statusDokumen,
+//     })
+//     .from(DokumenOrmasTable)
+//     .leftJoin(
+//       DetailOrmasTable,
+//       eq(DokumenOrmasTable.detailOrmasId, DetailOrmasTable.id)
+//     )
+//     .leftJoin(OrmasTable, eq(OrmasTable.id, DetailOrmasTable.OrmasId))
+//     .where(eq(DokumenOrmasTable.statusDokumen, "diterima"));
+// }
+// export async function getRejectedDokumenOrmasDataWithNamaOrmas() {
+//   return await db
+//     .select({
+//       namaOrmas: OrmasTable.namaOrmas,
+//       id: DokumenOrmasTable.id,
+//       judulDokumen: DokumenOrmasTable.judulDokumen,
+//       linkDokumen: DokumenOrmasTable.linkDokumen,
+//       statusDokumen: DokumenOrmasTable.statusDokumen,
+//     })
+//     .from(DokumenOrmasTable)
+//     .leftJoin(
+//       DetailOrmasTable,
+//       eq(DokumenOrmasTable.detailOrmasId, DetailOrmasTable.id)
+//     )
+//     .leftJoin(OrmasTable, eq(OrmasTable.id, DetailOrmasTable.OrmasId))
+//     .where(eq(DokumenOrmasTable.statusDokumen, "ditolak"));
+// }
+
+export async function getSubmittedDokumenOrmasData(id: number) {
   return await db
     .select({
-      namaOrmas: OrmasTable.namaOrmas,
       id: DokumenOrmasTable.id,
       judulDokumen: DokumenOrmasTable.judulDokumen,
       linkDokumen: DokumenOrmasTable.linkDokumen,
       statusDokumen: DokumenOrmasTable.statusDokumen,
     })
     .from(DokumenOrmasTable)
-    .leftJoin(
-      DetailOrmasTable,
-      eq(DokumenOrmasTable.detailOrmasId, DetailOrmasTable.id)
-    )
-    .leftJoin(OrmasTable, eq(OrmasTable.id, DetailOrmasTable.OrmasId))
-    .where(eq(DokumenOrmasTable.statusDokumen, "pengajuan"));
+    .where(
+      eq(DokumenOrmasTable.detailOrmasId, id) &&
+        eq(DokumenOrmasTable.statusDokumen, STATUS_DOKUMEN.PENGAJUAN)
+    );
+}
+export async function getAcceptedDokumenOrmasData(id: number) {
+  return await db
+    .select({
+      id: DokumenOrmasTable.id,
+      judulDokumen: DokumenOrmasTable.judulDokumen,
+      linkDokumen: DokumenOrmasTable.linkDokumen,
+      statusDokumen: DokumenOrmasTable.statusDokumen,
+    })
+    .from(DokumenOrmasTable)
+    .where(
+      eq(DokumenOrmasTable.detailOrmasId, id) &&
+        eq(DokumenOrmasTable.statusDokumen, STATUS_DOKUMEN.DITERIMA)
+    );
 }
 
-export async function getAcceptedDokumenOrmasDataWithNamaOrmas() {
+export async function getRejectedDokumenOrmasData(id: number) {
   return await db
     .select({
-      namaOrmas: OrmasTable.namaOrmas,
       id: DokumenOrmasTable.id,
       judulDokumen: DokumenOrmasTable.judulDokumen,
       linkDokumen: DokumenOrmasTable.linkDokumen,
       statusDokumen: DokumenOrmasTable.statusDokumen,
     })
     .from(DokumenOrmasTable)
-    .leftJoin(
-      DetailOrmasTable,
-      eq(DokumenOrmasTable.detailOrmasId, DetailOrmasTable.id)
-    )
-    .leftJoin(OrmasTable, eq(OrmasTable.id, DetailOrmasTable.OrmasId))
-    .where(eq(DokumenOrmasTable.statusDokumen, "diterima"));
-}
-export async function getRejectedDokumenOrmasDataWithNamaOrmas() {
-  return await db
-    .select({
-      namaOrmas: OrmasTable.namaOrmas,
-      id: DokumenOrmasTable.id,
-      judulDokumen: DokumenOrmasTable.judulDokumen,
-      linkDokumen: DokumenOrmasTable.linkDokumen,
-      statusDokumen: DokumenOrmasTable.statusDokumen,
-    })
-    .from(DokumenOrmasTable)
-    .leftJoin(
-      DetailOrmasTable,
-      eq(DokumenOrmasTable.detailOrmasId, DetailOrmasTable.id)
-    )
-    .leftJoin(OrmasTable, eq(OrmasTable.id, DetailOrmasTable.OrmasId))
-    .where(eq(DokumenOrmasTable.statusDokumen, "ditolak"));
+    .where(
+      eq(DokumenOrmasTable.detailOrmasId, id) &&
+        eq(DokumenOrmasTable.statusDokumen, STATUS_DOKUMEN.DITOLAK)
+    );
 }
 
 export async function getDokumenOrmasData(id: number) {
@@ -102,7 +147,7 @@ export async function addDokumenOrmasData(formData: FormData, id: number) {
       detailOrmasId: id,
       judulDokumen,
       linkDokumen,
-      statusDokumen: "pengajuan",
+      statusDokumen: STATUS_DOKUMEN.PENGAJUAN,
     });
   } catch (error) {
     console.error("Error inserting data:", error);
@@ -127,7 +172,11 @@ export async function updateDokumenOrmasData(formData: FormData, id: number) {
   try {
     await db
       .update(DokumenOrmasTable)
-      .set({ judulDokumen, linkDokumen, statusDokumen: "pengajuan" })
+      .set({
+        judulDokumen,
+        linkDokumen,
+        statusDokumen: STATUS_DOKUMEN.PENGAJUAN,
+      })
       .where(eq(DokumenOrmasTable.id, id));
   } catch (error) {
     console.error("Error inserting data:", error);
@@ -139,7 +188,7 @@ export async function updateDokumenOrmasStatus(id: number, formData: FormData) {
     | "pengajuan"
     | "diterima"
     | "ditolak"
-    | "tidak ada";
+    | "tidak aktif";
   try {
     await db
       .update(DokumenOrmasTable)

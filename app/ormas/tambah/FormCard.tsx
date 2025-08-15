@@ -12,7 +12,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { addOrmasData } from "@/lib/queries/ormas";
-import { encrypt } from "@/lib/crypto";
+// import { encrypt } from "@/lib/auth/encryption/crypto";
+import { hashPassword } from "@/lib/auth/encryption/bcrypt";
 
 export const FormCard = () => {
   const router = useRouter();
@@ -32,7 +33,7 @@ export const FormCard = () => {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    const hashedPassword = await encrypt("12345678");
+    const hashedPassword = await hashPassword("password");
 
     const formData = new FormData();
     const fields = {
@@ -160,7 +161,7 @@ export const FormCard = () => {
                         <Input
                           id="namaKetuaOrmas"
                           type="text"
-                          placeholder="namaKetuaOrmas"
+                          placeholder="Nama Ketua Ormas"
                           value={namaKetuaOrmas}
                           onChange={(e) => setNamaKetuaOrmas(e.target.value)}
                           required
@@ -174,7 +175,7 @@ export const FormCard = () => {
                         <Input
                           id="namaSekretarisOrmas"
                           type="text"
-                          placeholder="namaSekretarisOrmas"
+                          placeholder="Nama Sekretaris Ormas"
                           value={namaSekretarisOrmas}
                           onChange={(e) =>
                             setNamaSekretarisOrmas(e.target.value)

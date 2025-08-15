@@ -67,6 +67,7 @@ import {
   editDokumenOrmasData,
   updateDokumenOrmasData,
 } from "@/lib/queries/dokumenOrmas";
+import { supabase } from "@/lib/supabase/client";
 
 export const DokumenSchema = z.object({
   id: z.number(),
@@ -87,9 +88,12 @@ export const DataTable = ({
   onDeleteData: () => void;
   onUpdateData: () => void;
 }) => {
+  // Upload file state
   const [editDialog, setEditDialog] = useState(false);
-  const [editjudulDokumen, setEditJudulDokumen] = useState<string>("");
-  const [editLinkDokumen, setEditLinkDokumen] = useState<string>("");
+  const [judulDokumen, setJudulDokumen] = useState<string>("");
+  const [file, setFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState<boolean>(false);
+
   const [deleteDialog, setDeleteDialog] = useState(false);
   const [rowId, setRowId] = useState<number>(0);
 
@@ -98,32 +102,94 @@ export const DataTable = ({
     pageSize: 10,
   });
 
+  const handleDownload = async (url: string) => {
+    const { data } = supabase.storage.from("dokumen-ormas").getPublicUrl(url);
+    window.open(data.publicUrl, "_blank");
+  };
+
   const handleEdit = async (id: number) => {
     const result = await editDokumenOrmasData(id);
     if (result) {
-      setEditJudulDokumen(result.judulDokumen);
-      setEditLinkDokumen(result.linkDokumen);
+      setJudulDokumen(result.judulDokumen);
+      // setEditLinkDokumen(result.linkDokumen);
+      // console.log(result.linkDokumen);
       setEditDialog(true);
     }
   };
 
-  const handleUpdate = async (event: React.FormEvent, id: number) => {
-    event?.preventDefault();
-    const formData = new FormData();
-    formData.append("judulDokumen", editjudulDokumen ?? "");
-    formData.append("linkDokumen", editLinkDokumen ?? "");
+  const handleUpdate = async (
+    event: React.FormEvent<HTMLFormElement>,
+    id: number
+  ) => {
+    event.preventDefault();
+    if (!file) return alert("tidak ada file yang diupload");
+    setUploading(true);
 
-    try {
-      await updateDokumenOrmasData(formData, id);
-      setEditJudulDokumen("");
-      setEditLinkDokumen("");
-      onUpdateData();
-      setEditDialog(false);
-      console.log("update success");
-    } catch (error) {
-      console.error("Error inserting data:", error);
+    const linkDokumen = `${Date.now()}-${file.name}`;
+    const { error } = await supabase.storage
+      .from("dokumen-ormas")
+      .upload(linkDokumen, file, {
+        cacheControl: "3600",
+        upsert: false,
+      });
+
+    if (error) {
+      console.error("Upload error:", error);
+      alert("Upload failed");
+    } else {
+      const formData = new FormData();
+      formData.append("judulDokumen", judulDokumen ?? "");
+      formData.append("linkDokumen", linkDokumen ?? "");
+
+      try {
+        await updateDokumenOrmasData(formData, id);
+        setJudulDokumen("");
+        onUpdateData();
+        alert("Upload successful!");
+        setEditDialog(false);
+      } catch (error) {
+        console.error("Error inserting data:", error);
+      } finally {
+        setUploading(false);
+      }
     }
   };
+
+  // const handleUpdate = async (event: React.FormEvent, id: number) => {
+  //   event?.preventDefault();
+
+  //   if (!file) return alert("tidak ada file yang diupload");
+  //   setUploading(true);
+
+  //   const linkDokumen = `${Date.now()}-${file.name}`;
+  //   const { error } = await supabase.storage
+  //     .from("dokumen-ormas")
+  //     .upload(linkDokumen, file, {
+  //       cacheControl: "3600",
+  //       upsert: false,
+  //     });
+
+  //   if (error) {
+  //     console.error("Upload error:", error);
+  //     alert("Upload failed");
+  //   } else {
+  //     const formData = new FormData();
+  //     formData.append("judulDokumen", judulDokumen ?? "");
+  //     formData.append("linkDokumen", linkDokumen ?? "");
+  //     try {
+  //       await updateDokumenOrmasData(formData, id);
+  //       setJudulDokumen("");
+  //       // setEditLinkDokumen("");
+  //       onUpdateData();
+  //       setEditDialog(false);
+  //       console.log("update success");
+  //     } catch (error) {
+  //       console.error("Error inserting data:", error);
+  //     } finally {
+  //       setEditDialog(false);
+  //     }
+  //   }
+  // };
 
   const handleDelete = async (id: number) => {
     try {
@@ -163,15 +229,13 @@ export const DataTable = ({
     columnHelper.accessor("linkDokumen", {
       header: "Link Dokumen",
       cell: ({ row }) => (
-        <Button asChild variant="ghost" size="sm">
-          <a
-            href={row.original.linkDokumen}
-            target="_blank"
-            rel="external noopener noreferrer"
-          >
-            <IoDocumentTextSharp />
-            <span>Lihat Dokumen</span>
-          </a>
+        <Button
+          onClick={() => handleDownload(row.original.linkDokumen)}
+          variant="ghost"
+          size="sm"
+        >
+          <IoDocumentTextSharp />
+          <span>Lihat Dokumen</span>
         </Button>
       ),
     }),
@@ -203,6 +267,7 @@ export const DataTable = ({
             </DropdownMenuTrigger>
 
             <DropdownMenuContent align="end" className="w-32">
+              {/* EDIT BUTTON */}
               <DropdownMenuItem
                 onClick={() => {
                   handleEdit(info.row.original.id);
@@ -367,13 +432,19 @@ export const DataTable = ({
             <div className="grid gap-4 my-4">
               <Label>Judul Dokumen</Label>
               <Input
-                value={editjudulDokumen}
-                onChange={(e) => setEditJudulDokumen(e.target.value)}
+                value={judulDokumen}
+                onChange={(e) => setJudulDokumen(e.target.value)}
+                required
               />
               <Label>Link Dokumen</Label>
               <Input
-                value={editLinkDokumen}
-                onChange={(e) => setEditLinkDokumen(e.target.value)}
+                name="linkDokumen"
+                type="file"
+                onChange={(e) => {
+                  const selected = e.target.files?.[0];
+                  if (selected) setFile(selected);
+                }}
+                required
               />
             </div>
             <DialogFooter>
@@ -381,7 +452,11 @@ export const DataTable = ({
                 <Button variant="outline">Batal</Button>
               </DialogClose>
               <DialogClose asChild>
-                <Button variant="outline" type="submit">
+                <Button
+                  variant="outline"
+                  type="submit"
+                  disabled={uploading || !file}
+                >
                   Ubah
                 </Button>
               </DialogClose>

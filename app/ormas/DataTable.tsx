@@ -55,6 +55,7 @@ import {
   getPaginationRowModel,
   getFilteredRowModel,
 } from "@tanstack/react-table";
+import { STATUS_ORMAS } from "@/lib/enums/StatusOrmas";
 import { activateOrmas, deleteOrmasData } from "@/lib/queries/ormas";
 
 export const OrmasSchema = z.object({
@@ -63,7 +64,7 @@ export const OrmasSchema = z.object({
   singkatanOrmas: z.string(),
   alamatOrmas: z.string().nullable(),
   noTelpOrmas: z.string().nullable(),
-  statusOrmas: z.string(),
+  statusOrmas: z.enum([STATUS_ORMAS.AKTIF, STATUS_ORMAS.NON_AKTIF]),
 });
 type OrmasData = z.infer<typeof OrmasSchema>;
 
@@ -126,7 +127,7 @@ export const DataTable = ({
       header: "Status",
       cell: ({ row }) => (
         <Badge variant="outline" className=" px-1.5">
-          {row.original.statusOrmas === "Aktif" ? (
+          {row.original.statusOrmas === STATUS_ORMAS.AKTIF ? (
             <FaCheckCircle className="fill-green-500 dark:fill-green-400" />
           ) : (
             <MdOutlineError className="fill-yellow-500 dark:fill-yellow-400" />
@@ -151,7 +152,7 @@ export const DataTable = ({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-32">
-              {info.row.original.statusOrmas === "Non Aktif" && (
+              {info.row.original.statusOrmas === STATUS_ORMAS.NON_AKTIF && (
                 <>
                   <DropdownMenuItem
                     onClick={() => handleActivation(info.row.original.id)}
