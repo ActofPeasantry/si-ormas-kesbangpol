@@ -16,9 +16,7 @@ interface ResetPasswordPageProps {
   searchParams?: { token?: string };
 }
 
-export default function ResetPasswordPage({
-  searchParams,
-}: ResetPasswordPageProps) {
+export default function Page({ searchParams }: ResetPasswordPageProps) {
   const token = searchParams?.token;
 
   if (!token) {
