@@ -9,37 +9,41 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { requestPasswordReset } from "@/lib/auth/action";
-import { useActionState } from "react";
+import { resetPassword } from "@/lib/auth/action";
 import { useFormStatus } from "react-dom";
 
-export default function Page() {
-  const [state, requestAction] = useActionState(
-    requestPasswordReset,
-    undefined
-  );
+export default function Page({
+  searchParams,
+}: {
+  searchParams: { token: string };
+}) {
+  async function handleSubmit(formData: FormData) {
+    "use server";
+    const password = formData.get("password") as string;
+    await resetPassword(searchParams.token, password);
+  }
+
   return (
     <div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
       <div className="w-full max-w-sm">
         <div className="flex flex-col gap-6">
           <Card>
             <CardHeader>
-              <CardTitle>Lupa Password</CardTitle>
+              <CardTitle>Reset Password</CardTitle>
               <CardDescription>
-                Masukkan email anda untuk mendapatkan link reset password
+                Silahkan masukkan password baru anda
               </CardDescription>
-              {state?.errors?.email && <p>{state.errors.email}</p>}
             </CardHeader>
             <CardContent>
-              <form action={requestAction}>
+              <form action={handleSubmit}>
                 <div className="flex flex-col gap-6">
                   <div className="grid gap-3">
-                    <Label htmlFor="email">Email</Label>
+                    <Label htmlFor="password">Email</Label>
                     <Input
-                      id="email"
-                      name="email"
-                      type="email"
-                      placeholder="contoh@email.com"
+                      id="password"
+                      name="password"
+                      type="password"
+                      placeholder="password baru"
                     />
                   </div>
 
@@ -49,6 +53,7 @@ export default function Page() {
                 </div>
               </form>
               <div className="mt-4 text-center text-sm">
+                Don&apos;t have an account?{" "}
                 <a href="/login" className="underline underline-offset-4">
                   Kembali ke Login
                 </a>

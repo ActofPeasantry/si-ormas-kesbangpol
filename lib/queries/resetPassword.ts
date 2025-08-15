@@ -16,7 +16,7 @@ export async function addToken(
         expiresAt: expiresAt,
       })
       .onConflictDoUpdate({
-        target: ResetPasswordTable.id,
+        target: ResetPasswordTable.userId,
         set: { token: hashedToken, expiresAt: expiresAt },
       });
   } catch (error) {

@@ -44,11 +44,12 @@ export const ResetPasswordTable = pgTable("reset_password_table", {
   id: serial("id").primaryKey(),
   userId: integer("user_id")
     .notNull()
+    .unique()
     .references(() => UsersTable.id, {
       onDelete: "cascade",
       onUpdate: "cascade",
     }),
-  token: text("token").notNull(),
+  token: text("token").notNull().unique(),
   expiresAt: timestamp("expires_at").notNull(),
 });
 
