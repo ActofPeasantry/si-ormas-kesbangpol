@@ -13,6 +13,7 @@ import { checkPassword, hashPassword } from "./encryption/bcrypt";
 import { createHash, randomBytes } from "crypto";
 import { addToken, checkToken, deleteToken } from "../queries/resetPassword";
 import { createTransporter } from "../nodemailer/nodemailer";
+import { DateTime } from "luxon";
 
 // const testUser = {
 //   id: "1",
@@ -112,7 +113,7 @@ export async function requestPasswordReset(
   // Generate token
   const rawToken = randomBytes(32).toString("hex");
   const hashedToken = createHash("sha256").update(rawToken).digest("hex");
-  const expiresAt = new Date(Date.now() + 1000 * 60 * 15); //15 minutes
+  const expiresAt = DateTime.utc().plus({ minutes: 15 }).toJSDate(); //15 minutes
   await addToken(user.id, hashedToken, expiresAt);
 
   //send SMTP email
@@ -140,5 +141,5 @@ export async function resetPassword(rawToken: string, newPassword: string) {
   await changePassword(token[0].userId, hashedPassword);
   await deleteToken(hashedPassword);
 
-  return { success: true };
+  return { success: true, message: "Password telah ditukar!" };
 }

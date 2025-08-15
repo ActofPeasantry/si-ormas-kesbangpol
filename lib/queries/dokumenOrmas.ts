@@ -8,12 +8,16 @@ import {
 } from "@/lib/drizzle/schema";
 import { eq } from "drizzle-orm";
 import { STATUS_DOKUMEN } from "../enums/StatusDokumen";
+import { DateTime } from "luxon";
 
 export async function acceptDokumenOrmas(id: number) {
   try {
     await db
       .update(DokumenOrmasTable)
-      .set({ statusDokumen: STATUS_DOKUMEN.DITERIMA, updatedAt: new Date() })
+      .set({
+        statusDokumen: STATUS_DOKUMEN.DITERIMA,
+        updatedAt: DateTime.utc().toJSDate(),
+      })
       .where(eq(DokumenOrmasTable.id, id));
   } catch (error) {
     console.error("Error inserting data:", error);
@@ -23,7 +27,10 @@ export async function refuseDokumenOrmas(id: number) {
   try {
     await db
       .update(DokumenOrmasTable)
-      .set({ statusDokumen: STATUS_DOKUMEN.DITOLAK, updatedAt: new Date() })
+      .set({
+        statusDokumen: STATUS_DOKUMEN.DITOLAK,
+        updatedAt: DateTime.utc().toJSDate(),
+      })
       .where(eq(DokumenOrmasTable.id, id));
   } catch (error) {
     console.error("Error inserting data:", error);

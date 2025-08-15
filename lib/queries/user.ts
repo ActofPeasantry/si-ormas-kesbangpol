@@ -1,6 +1,7 @@
 import { db } from "@/lib/drizzle";
 import { UsersTable } from "@/lib/drizzle/schema";
 import { eq } from "drizzle-orm";
+import { DateTime } from "luxon";
 
 export async function checkEmailUser(email: string) {
   const result = await db
@@ -35,7 +36,7 @@ export async function changePassword(userId: number, hashedPassword: string) {
     .update(UsersTable)
     .set({
       password: hashedPassword,
-      updatedAt: new Date(),
+      updatedAt: DateTime.utc().toJSDate(),
     })
     .where(eq(UsersTable.id, userId));
 }

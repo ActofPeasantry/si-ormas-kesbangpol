@@ -1,6 +1,7 @@
 import { db } from "@/lib/drizzle";
 import { ResetPasswordTable } from "@/lib/drizzle/schema";
 import { and, eq, gt } from "drizzle-orm";
+import { DateTime } from "luxon";
 
 export async function addToken(
   userId: number,
@@ -32,7 +33,7 @@ export async function checkToken(hashedToken: string) {
       .where(
         and(
           eq(ResetPasswordTable.token, hashedToken),
-          gt(ResetPasswordTable.expiresAt, new Date())
+          gt(ResetPasswordTable.expiresAt, DateTime.utc().toJSDate())
         )
       )
       .limit(1);
