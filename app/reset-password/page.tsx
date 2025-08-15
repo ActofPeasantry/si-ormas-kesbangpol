@@ -1,6 +1,7 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -28,45 +29,47 @@ export default function Page() {
   }
 
   return (
-    <div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
-      <div className="w-full max-w-sm">
-        <div className="flex flex-col gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Reset Password</CardTitle>
-              <CardDescription>
-                Silahkan masukkan password baru anda
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form action={handleSubmit}>
-                <div className="flex flex-col gap-6">
-                  <div className="grid gap-3">
-                    <Label htmlFor="password">Email</Label>
-                    <Input
-                      id="password"
-                      name="password"
-                      type="password"
-                      placeholder="password baru"
-                    />
-                  </div>
+    <Suspense>
+      <div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
+        <div className="w-full max-w-sm">
+          <div className="flex flex-col gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Reset Password</CardTitle>
+                <CardDescription>
+                  Silahkan masukkan password baru anda
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <form action={handleSubmit}>
+                  <div className="flex flex-col gap-6">
+                    <div className="grid gap-3">
+                      <Label htmlFor="password">Email</Label>
+                      <Input
+                        id="password"
+                        name="password"
+                        type="password"
+                        placeholder="password baru"
+                      />
+                    </div>
 
-                  <div className="flex flex-col gap-3">
-                    <SubmitButton />
+                    <div className="flex flex-col gap-3">
+                      <SubmitButton />
+                    </div>
                   </div>
+                </form>
+                <div className="mt-4 text-center text-sm">
+                  Don&apos;t have an account?{" "}
+                  <a href="/login" className="underline underline-offset-4">
+                    Kembali ke Login
+                  </a>
                 </div>
-              </form>
-              <div className="mt-4 text-center text-sm">
-                Don&apos;t have an account?{" "}
-                <a href="/login" className="underline underline-offset-4">
-                  Kembali ke Login
-                </a>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
-    </div>
+    </Suspense>
   );
 }
 
