@@ -12,11 +12,11 @@ import { Label } from "@/components/ui/label";
 import { resetPassword } from "@/lib/auth/action";
 import { useFormStatus } from "react-dom";
 
-export default function Page({
-  searchParams,
-}: {
+interface PageProps {
   searchParams: { token: string };
-}) {
+}
+
+export default function Page({ searchParams }: PageProps) {
   async function handleSubmit(formData: FormData) {
     const password = formData.get("password") as string;
     await resetPassword(searchParams.token, password);
