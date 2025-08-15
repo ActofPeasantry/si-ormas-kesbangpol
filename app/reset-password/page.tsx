@@ -18,7 +18,6 @@ export default function Page({
   searchParams: { token: string };
 }) {
   async function handleSubmit(formData: FormData) {
-    "use server";
     const password = formData.get("password") as string;
     await resetPassword(searchParams.token, password);
   }
