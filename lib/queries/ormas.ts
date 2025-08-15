@@ -170,8 +170,6 @@ export async function updateOrmasData(id: number, formData: FormData) {
         adArt,
       })
       .where(eq(DetailOrmasTable.OrmasId, id));
-
-    console.log("Updated ormasId:", id);
   } catch (error) {
     console.error("Error inserting data:", error);
   }
@@ -180,7 +178,6 @@ export async function updateOrmasData(id: number, formData: FormData) {
 export async function deleteOrmasData(id: number) {
   try {
     await db.delete(OrmasTable).where(eq(OrmasTable.id, id));
-    console.log("Deleted ormasId:", id);
   } catch (error) {
     console.error("Error deleting data:", error);
   }

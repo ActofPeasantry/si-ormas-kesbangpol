@@ -2,7 +2,7 @@ import { db } from "@/lib/drizzle";
 import { UsersTable } from "@/lib/drizzle/schema";
 import { eq } from "drizzle-orm";
 
-export async function checkLoginUser(email: string) {
+export async function checkEmailUser(email: string) {
   const result = await db
     .select({
       id: UsersTable.id,
@@ -28,4 +28,14 @@ export async function findUser(id: number) {
     .where(eq(UsersTable.id, id))
     .limit(1);
   return result[0];
+}
+
+export async function changePassword(userId: number, hashedPassword: string) {
+  await db
+    .update(UsersTable)
+    .set({
+      password: hashedPassword,
+      updatedAt: new Date(),
+    })
+    .where(eq(UsersTable.id, userId));
 }

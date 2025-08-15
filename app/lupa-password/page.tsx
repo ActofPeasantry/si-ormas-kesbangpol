@@ -9,28 +9,26 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { login } from "@/lib/auth/action";
-import { IconBrandGoogleFilled } from "@tabler/icons-react";
-import Link from "next/link";
+import { requestPasswordReset } from "@/lib/auth/action";
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 
 export default function Page() {
-  const [state, loginAction] = useActionState(login, undefined);
-
+  const [state, resetAction] = useActionState(requestPasswordReset, undefined);
   return (
     <div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
       <div className="w-full max-w-sm">
         <div className="flex flex-col gap-6">
           <Card>
             <CardHeader>
-              <CardTitle>Login to your account</CardTitle>
+              <CardTitle>Lupa Password</CardTitle>
               <CardDescription>
-                Enter your email below to login to your account
+                Masukkan email anda untuk mendapatkan link reset password
               </CardDescription>
+              {state?.errors?.email && <p>{state.errors.email}</p>}
             </CardHeader>
             <CardContent>
-              <form action={loginAction}>
+              <form action={resetAction}>
                 <div className="flex flex-col gap-6">
                   <div className="grid gap-3">
                     <Label htmlFor="email">Email</Label>
@@ -41,28 +39,11 @@ export default function Page() {
                       placeholder="contoh@email.com"
                     />
                   </div>
-                  {state?.errors?.email && (
-                    <p className="text-red-500">{state.errors.email}</p>
-                  )}
-                  <div className="grid gap-3">
-                    <div className="flex items-center">
-                      <Label htmlFor="password">Password</Label>
-                      <Link
-                        href="/lupa-password"
-                        className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
-                      >
-                        Lupa password?
-                      </Link>
-                    </div>
-                    <Input id="password" name="password" type="password" />
-                    {state?.errors.password && (
-                      <p className="text-red-500">{state.errors.password}</p>
-                    )}
-                  </div>
+
                   <div className="flex flex-col gap-3">
                     <SubmitButton />
                     <Button variant="outline" className="w-full">
-                      <IconBrandGoogleFilled /> Login with Google
+                      Kembali ke Login
                     </Button>
                   </div>
                 </div>
@@ -86,7 +67,7 @@ function SubmitButton() {
 
   return (
     <Button disabled={pending} type="submit" className="w-full">
-      Login
+      Kirim link
     </Button>
   );
 }
