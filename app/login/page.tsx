@@ -83,7 +83,6 @@ export default function Page() {
 
 function SubmitButton() {
   const { pending } = useFormStatus();
-
   return (
     <Button disabled={pending} type="submit" className="w-full">
       Login

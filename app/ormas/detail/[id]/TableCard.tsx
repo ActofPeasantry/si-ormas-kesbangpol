@@ -1,6 +1,6 @@
 "use client";
 import { z } from "zod";
-import { useEffect, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase/client";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { DataTable } from "./DataTable";
@@ -39,6 +39,7 @@ import { addDokumenOrmasData } from "@/lib/queries/dokumenOrmas";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { STATUS_DOKUMEN } from "@/lib/enums/StatusDokumen";
+import { useFormStatus } from "react-dom";
 
 export const OrmasSchema = z.object({
   id: z.number(),
@@ -51,14 +52,28 @@ export const OrmasSchema = z.object({
     STATUS_DOKUMEN.TIDAK_AKTIF,
   ]),
 });
-
 type OrmasData = z.infer<typeof OrmasSchema>;
+
 type DokumenData = {
   submittedRecords: OrmasData[];
   acceptedRecords: OrmasData[];
   rejectedRecords: OrmasData[];
   allRecords: OrmasData[];
 };
+
+const MAX_FILE_SIZE = 1 * 1024 * 1024; // 1MB
+const acceptedMimeTypes = ["application/pdf"];
+
+export const FileSchema = z.object({
+  file: z
+    .instanceof(File, { message: "Pilih file terlebih dahulu" })
+    .refine((file) => file.size <= MAX_FILE_SIZE, "Besar file melebihi 1 MB.")
+    .refine(
+      (file) => acceptedMimeTypes.includes(file.type),
+      "File harus dalam format PDF"
+    ),
+});
+type FileState = { error?: string | string[] } | undefined;
 
 export const TableCard = ({ numericId }: { numericId: number }) => {
   // Table Checkbox state
@@ -70,16 +85,21 @@ export const TableCard = ({ numericId }: { numericId: number }) => {
   const [open, setOpen] = useState<boolean>(false);
 
   // Upload file state
+  const [state, uploadAction] = useActionState(uploadDokumen, undefined);
   const [judulDokumen, setJudulDokumen] = useState<string>("");
-  const [file, setFile] = useState<File | null>(null);
-  const [uploading, setUploading] = useState<boolean>(false);
 
-  const handleUploadDokumen = async (
-    event: React.FormEvent<HTMLFormElement>
-  ) => {
-    event.preventDefault();
-    if (!file) return alert("tidak ada file yang diupload");
-    setUploading(true);
+  async function uploadDokumen(
+    prevState: FileState,
+    formData: FormData
+  ): Promise<FileState> {
+    const result = FileSchema.safeParse(Object.fromEntries(formData));
+
+    if (!result.success) {
+      return {
+        error: result.error.flatten().fieldErrors.file,
+      };
+    }
+    const { file } = result.data;
 
     const linkDokumen = `${Date.now()}-${file.name}`;
     const { error } = await supabase.storage
@@ -93,7 +113,6 @@ export const TableCard = ({ numericId }: { numericId: number }) => {
       console.error("Upload error:", error);
       alert("Upload failed");
     } else {
-      const formData = new FormData();
       formData.append("judulDokumen", judulDokumen ?? "");
       formData.append("linkDokumen", linkDokumen ?? "");
 
@@ -105,11 +124,9 @@ export const TableCard = ({ numericId }: { numericId: number }) => {
         setOpen(false);
       } catch (error) {
         console.error("Error inserting data:", error);
-      } finally {
-        setUploading(false);
       }
     }
-  };
+  }
 
   const handleAcceptedDocuments = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -196,7 +213,7 @@ export const TableCard = ({ numericId }: { numericId: number }) => {
             </DialogTrigger>
 
             <DialogContent className="sm:max-w-[425px]">
-              <form onSubmit={handleUploadDokumen}>
+              <form action={uploadAction}>
                 <div className="mb-4">
                   <DialogHeader>
                     <DialogTitle>Tambah Dokumen</DialogTitle>
@@ -215,15 +232,10 @@ export const TableCard = ({ numericId }: { numericId: number }) => {
                   </div>
                   <div className="grid gap-3">
                     <Label>Link Dokumen</Label>
-                    <Input
-                      name="linkDokumen"
-                      type="file"
-                      onChange={(e) => {
-                        const selected = e.target.files?.[0];
-                        if (selected) setFile(selected);
-                      }}
-                      required
-                    />
+                    <Input name="file" type="file" required />
+                    {state?.error && (
+                      <p className="text-red-500">{state.error}</p>
+                    )}
                   </div>
                 </div>
                 <DialogFooter className="mt-3">
@@ -232,13 +244,7 @@ export const TableCard = ({ numericId }: { numericId: number }) => {
                       Cancel
                     </Button>
                   </DialogClose>
-                  <Button
-                    variant="outline"
-                    type="submit"
-                    disabled={uploading || !file}
-                  >
-                    Tambah
-                  </Button>
+                  <SubmitButton label="Tambah" />
                 </DialogFooter>
               </form>
             </DialogContent>
@@ -389,3 +395,12 @@ export const TableCard = ({ numericId }: { numericId: number }) => {
     </Card>
   );
 };
+
+function SubmitButton({ label }: { label: string }) {
+  const { pending } = useFormStatus();
+  return (
+    <Button disabled={pending} type="submit" className="w-full">
+      {label}
+    </Button>
+  );
+}
